@@ -4,21 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daniel Williamson | Infrastructure & Security Architect</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='black'/><circle cx='50' cy='50' r='38' fill='none' stroke='%2300f2ff' stroke-width='6'/><circle cx='80' cy='30' r='10' fill='%2300f2ff'/></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;400;800&family=JetBrains+Mono:wght@300;500&family=Space+Grotesk:wght@300;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #080a0c;
+            --bg: #030406;
             --accent: #00f2ff;
             --accent-dim: rgba(0, 242, 255, 0.1);
             --text: #f0f4f8;
             --text-dim: #94a3b8;
-            --sans: 'Plus Jakarta Sans', sans-serif;
             --mono: 'JetBrains Mono', monospace;
-            --section-gap: 15rem;
+            --sans: 'Plus Jakarta Sans', sans-serif;
+            --title: 'Space Grotesk', sans-serif;
         }
 
-        * { box-sizing: border-box; }
+        * { cursor: none !important; box-sizing: border-box; }
+
         body {
             background-color: var(--bg);
             color: var(--text);
@@ -28,358 +28,281 @@
             scroll-behavior: smooth;
         }
 
-        /* Interactive Background */
-        #canvas-bg {
+        /* 1. BOOT SEQUENCE */
+        #boot-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            padding: 3rem;
+            font-family: var(--mono);
+            color: var(--accent);
+            font-size: 0.8rem;
+            line-height: 1.5;
+        }
+
+        /* 2. BACKGROUND & CANVAS */
+        #three-canvas {
             position: fixed;
             top: 0; left: 0;
             z-index: -1;
-            opacity: 0.3;
+            opacity: 0.6;
         }
 
-        /* Navigation Orbit */
+        .scanlines {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
+            background-size: 100% 4px;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        /* 3. CUSTOM CURSOR */
+        #cursor {
+            position: fixed;
+            width: 30px; height: 30px;
+            border: 1px solid var(--accent);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.15s ease-out;
+            display: flex; align-items: center; justify-content: center;
+        }
+        #cursor::after { content: ""; width: 4px; height: 4px; background: var(--accent); border-radius: 50%; }
+
+        /* 4. NAVIGATION TIMELINE */
         .nav-container {
             position: fixed;
-            top: 50%;
-            right: 2vw;
+            top: 50%; right: 3vw;
             transform: translateY(-50%);
-            z-index: 1000;
+            z-index: 100;
             display: flex;
             flex-direction: column;
             gap: 2.5rem;
             align-items: center;
-            max-height: 80vh;
-            overflow-y: auto;
-            padding: 2rem 1rem;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
         }
 
         .nav-container::before {
             content: "";
             position: absolute;
-            top: 2rem;
-            bottom: 2rem;
-            right: calc(1rem + 5px);
+            top: 0; bottom: 0; right: 6px;
             width: 1px;
             background: linear-gradient(to bottom, transparent, var(--accent), transparent);
-            opacity: 0.3;
-            z-index: -1;
-        }
-        
-        .nav-container::-webkit-scrollbar {
-            display: none;
-        }
-
-        @media (max-width: 768px) {
-            .nav-container {
-                right: 0;
-                background: rgba(8, 10, 12, 0.85);
-                backdrop-filter: blur(15px);
-                border-left: 1px solid rgba(255, 255, 255, 0.1);
-                border-radius: 20px 0 0 20px;
-                gap: 2rem;
-                padding: 2rem 0.5rem;
-            }
-            .nav-dot {
-                width: 8px;
-                height: 8px;
-            }
-            .nav-container::before {
-                right: calc(0.5rem + 3.5px);
-            }
-            .nav-label { display: none !important; }
-            .nav-year {
-                right: 20px !important;
-                font-size: 0.5rem !important;
-            }
-            .hero, .content-container {
-                padding-right: 3.5rem !important;
-            }
+            opacity: 0.2;
         }
 
         .nav-dot {
-            width: 12px;
-            height: 12px;
+            width: 12px; height: 12px;
             border: 1px solid var(--accent);
             border-radius: 50%;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
             background: var(--bg);
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+            text-decoration: none;
         }
 
-        .nav-dot:hover, .nav-dot.active {
+        .nav-dot.active, .nav-dot:hover {
             background: var(--accent);
             box-shadow: 0 0 15px var(--accent);
-            transform: scale(1.3);
+            transform: scale(1.4);
         }
 
         .nav-year {
             position: absolute;
-            right: 30px;
-            top: 50%;
+            right: 30px; top: 50%;
             transform: translateY(-50%);
             font-family: var(--mono);
             font-size: 0.7rem;
             color: var(--accent);
-            opacity: 0.5;
-            transition: all 0.3s ease;
-            pointer-events: none;
+            opacity: 0.4;
+            transition: 0.3s;
         }
+        .nav-dot.active .nav-year { opacity: 1; font-weight: 800; }
 
-        .nav-dot.active .nav-year, .nav-dot:hover .nav-year {
-            opacity: 1;
-            font-weight: bold;
-            transform: translateY(-50%) scale(1.1);
-        }
-
-        .nav-label {
-            position: absolute;
-            right: 75px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-family: var(--mono);
-            font-size: 0.7rem;
-            color: var(--text);
-            text-transform: uppercase;
-            letter-spacing: 0.1rem;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-            white-space: nowrap;
-        }
-
-        .nav-dot:hover .nav-label { opacity: 0.8; }
-
-        /* Hero */
+        /* 5. HERO */
         .hero {
             height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding: 0 10vw;
+            align-items: center;
+            text-align: center;
+            position: relative;
         }
 
         .hero h1 {
-            font-size: clamp(3rem, 12vw, 8rem);
-            font-weight: 800;
+            font-family: var(--title);
+            font-size: clamp(4rem, 18vw, 14rem);
+            font-weight: 700;
             margin: 0;
-            line-height: 0.9;
-            letter-spacing: -0.04em;
-            word-wrap: break-word;
-            hyphens: auto;
+            line-height: 0.8;
+            letter-spacing: -0.06em;
+            background: linear-gradient(to bottom, #fff 40%, #333);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .hero p {
             font-family: var(--mono);
             color: var(--accent);
-            font-size: 1rem;
             margin-top: 2rem;
+            letter-spacing: 0.6rem;
             text-transform: uppercase;
-            letter-spacing: 0.4rem;
+            font-size: 0.9rem;
+            opacity: 0.8;
         }
 
-        /* Sections */
+        /* 6. CONTENT SECTIONS (BLUEPRINT STYLE) */
         .content-container {
-            max-width: 1400px;
+            max-width: 1300px;
             margin: 0 auto;
-            padding: 0 10vw;
+            padding: 0 5vw;
         }
 
         section {
-            min-height: 80vh;
-            padding: 10vh 0;
+            min-height: 100vh;
+            padding: 15vh 0;
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 5rem;
+            gap: 6rem;
             align-items: center;
         }
 
         @media (max-width: 1100px) {
             section { grid-template-columns: 1fr; }
-            .visual-box { order: -1; height: 300px !important; }
+            .visual-box { order: -1; height: 400px !important; }
         }
 
-        .info-box {
-            max-width: 600px;
+        .glass-blueprint {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            padding: 3rem;
+            position: relative;
         }
 
-        .tag {
+        .glass-blueprint::before {
+            content: "SYSTEM_SCHEMA_V."+attr(data-num);
+            position: absolute;
+            top: -10px; left: 20px;
+            background: var(--accent);
+            color: #000;
             font-family: var(--mono);
-            color: var(--accent);
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            margin-bottom: 1rem;
+            font-size: 0.6rem;
+            padding: 2px 8px;
+            font-weight: 800;
+        }
+
+        .section-tag {
             display: flex;
             align-items: center;
-            gap: 10px;
-        }
-
-        .brand-logo {
-            width: 24px;
-            height: 24px;
-            fill: var(--accent);
-        }
-
-        h2 {
-            font-size: clamp(2rem, 5vw, 3.5rem);
-            font-weight: 700;
-            margin: 0 0 2rem 0;
-            letter-spacing: -0.03em;
-            word-wrap: break-word;
-        }
-
-        .description {
-            font-size: 1.1rem;
-            color: var(--text-dim);
-            line-height: 1.8;
+            gap: 1rem;
             margin-bottom: 2rem;
         }
 
+        .company-logo {
+            height: 30px;
+            filter: grayscale(1) brightness(5);
+            transition: 0.3s ease;
+        }
+
+        section:hover .company-logo {
+            filter: grayscale(1) brightness(10);
+        }
+
+        h2 {
+            font-family: var(--title);
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            margin: 0 0 2rem 0;
+            letter-spacing: -0.04em;
+            line-height: 1;
+        }
+
         .details-list {
-            list-style: none;
-            padding: 0;
+            list-style: none; padding: 0;
+            font-family: var(--mono);
+            font-size: 0.85rem;
+            color: var(--text-dim);
         }
 
         .details-list li {
-            position: relative;
-            padding-left: 1.5rem;
-            margin-bottom: 1rem;
-            font-size: 0.95rem;
-            color: var(--text);
+            margin-bottom: 1.2rem;
+            display: flex; gap: 1rem;
         }
 
-        .details-list li::before {
-            content: "→";
-            position: absolute;
-            left: 0;
-            color: var(--accent);
-        }
+        .details-list li::before { content: ">>"; color: var(--accent); font-weight: 800; }
 
-        /* Intense Visual Boxes */
         .visual-box {
-            width: 100%;
-            height: 500px;
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            width: 100%; height: 500px;
+            border: 1px dashed var(--accent-dim);
             position: relative;
             overflow: hidden;
+            display: flex; justify-content: center; align-items: center;
         }
 
-        /* Individual Animations */
-        .anim-svg { width: 80%; height: 80%; }
+        /* 7. ANIMATIONS */
+        .anim-svg { width: 90%; height: 90%; }
+        
+        /* Kuiper: Orbital Logic */
+        .kuiper-pulse { stroke: var(--accent); stroke-width: 0.5; animation: pulse 4s infinite; }
+        @keyframes pulse { 0% { r: 20; opacity: 1; } 100% { r: 180; opacity: 0; } }
 
-        /* Project Kuiper: Orbital Mesh */
-        .kuiper-node { fill: var(--accent); }
-        .kuiper-pulse { 
-            stroke: var(--accent); 
-            stroke-width: 0.5;
-            animation: pulse 3s infinite;
-        }
-        @keyframes pulse {
-            0% { r: 50; opacity: 1; }
-            100% { r: 150; opacity: 0; }
-        }
-
-        /* Identity: Graph */
-        .id-line { stroke: var(--accent); opacity: 0.2; }
-        .id-node { fill: #fff; }
-
-        /* Payments: Flow */
-        .pay-rail { stroke: var(--accent-dim); stroke-width: 1; fill: none; }
+        /* Payments: Money Flow */
         .money-symbol {
             fill: var(--accent);
             font-family: var(--mono);
             font-size: 24px;
-            font-weight: bold;
-            offset-path: path('M50,200 L350,200');
-            animation: flow-money 3s linear infinite;
+            offset-path: path('M50,250 L350,250');
+            animation: money-flow 3s linear infinite;
         }
-        @keyframes flow-money {
-            0% { offset-distance: 0%; opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { offset-distance: 100%; opacity: 0; }
-        }
+        @keyframes money-flow { from { offset-distance: 0%; } to { offset-distance: 100%; } }
 
-        /* NARAC: Fallout/Explosion */
-        .mushroom-cloud { transform-origin: center 300px; }
-        .mushroom-cap { fill: var(--accent); opacity: 0.6; animation: cloud-grow 4s infinite; transform-origin: center 300px; }
-        .shockwave { stroke: var(--accent); stroke-width: 1; fill: none; transform-origin: center 300px; animation: shock 4s infinite; }
-        .particle { fill: var(--accent); opacity: 0.5; }
+        /* Autonomy Scene Toggle */
+        .scene { transition: opacity 0.8s; }
+        .scene-car { animation: scene-1 12s infinite; }
+        .scene-sub { animation: scene-2 12s infinite; }
+        @keyframes scene-1 { 0%, 45% { opacity: 1; } 50%, 100% { opacity: 0; } }
+        @keyframes scene-2 { 0%, 50% { opacity: 0; } 55%, 95% { opacity: 1; } 100% { opacity: 0; } }
 
-        @keyframes cloud-grow {
-            0% { transform: scale(0.4); opacity: 0; }
-            20% { opacity: 1; }
-            100% { transform: scale(1.5) translateY(-40px); opacity: 0; }
-        }
-        @keyframes shock {
-            0% { transform: scale(0.1); opacity: 1; stroke-width: 4; }
-            100% { transform: scale(2); opacity: 0; stroke-width: 0.5; }
-        }
-
-        /* Autonomy: Multi-Scene */
-        .scene { transition: opacity 1s ease-in-out; }
-        .scene-car { animation: scene-1 16s infinite; }
-        .scene-sub { animation: scene-2 16s infinite; }
-
-        @keyframes scene-1 {
-            0%, 45% { opacity: 1; visibility: visible; }
-            50%, 100% { opacity: 0; visibility: hidden; }
-        }
-        @keyframes scene-2 {
-            0%, 50% { opacity: 0; visibility: hidden; }
-            55%, 95% { opacity: 1; visibility: visible; }
-            100% { opacity: 0; visibility: hidden; }
-        }
-
-        .race-track { fill: none; stroke: rgba(255,255,255,0.05); stroke-width: 40; stroke-linecap: round; }
-        .race-car { offset-path: path('M100,200 A100,60 0 1,0 300,200 A100,60 0 1,0 100,200'); animation: race 4s linear infinite; }
-        @keyframes race { from { offset-distance: 0%; } to { offset-distance: 100%; } }
-
-        .sub-path { fill: none; stroke: var(--accent-dim); stroke-width: 1; stroke-dasharray: 5,5; }
-        .submarine { animation: sub-move 8s ease-in-out infinite; }
-        @keyframes sub-move {
-            0% { transform: translate(50px, 300px) rotate(0deg); }
-            20% { transform: translate(150px, 250px) rotate(-20deg); }
-            40% { transform: translate(250px, 320px) rotate(30deg); }
-            60% { transform: translate(300px, 200px) rotate(-40deg); }
-            80% { transform: translate(200px, 100px) rotate(-10deg); }
-            100% { transform: translate(50px, 300px) rotate(0deg); }
-        }
-
-        /* Footer */
         footer {
-            padding: 10rem 10vw 5rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 10rem 0 5rem;
             text-align: center;
             font-family: var(--mono);
-            font-size: 0.8rem;
-            color: var(--text-dim);
+            font-size: 0.7rem;
+            opacity: 0.4;
+            letter-spacing: 2px;
         }
 
     </style>
 </head>
 <body>
 
-    <canvas id="canvas-bg"></canvas>
+    <div id="cursor"></div>
+    <div class="scanlines"></div>
 
-    <div class="nav-container">
-        <a href="#hero" class="nav-dot active"><span class="nav-year">Present</span><span class="nav-label">Home</span></a>
-        <a href="#kuiper" class="nav-dot"><span class="nav-year">2024</span><span class="nav-label">Project Kuiper</span></a>
-        <a href="#people" class="nav-dot"><span class="nav-year">2022</span><span class="nav-label">People Tech</span></a>
-        <a href="#payments" class="nav-dot"><span class="nav-year">2020</span><span class="nav-label">Payment Exchange</span></a>
-        <a href="#cyber" class="nav-dot"><span class="nav-year">2018</span><span class="nav-label">Cyber Risk</span></a>
-        <a href="#narac" class="nav-dot"><span class="nav-year">2017</span><span class="nav-label">NARAC</span></a>
-        <a href="#autonomy" class="nav-dot"><span class="nav-year">2014</span><span class="nav-label">Autonomy</span></a>
+    <div id="boot-screen">
+        <div id="boot-log"></div>
     </div>
 
+    <canvas id="three-canvas"></canvas>
+
+    <nav class="nav-container">
+        <a href="#hero" class="nav-dot active"><span class="nav-year">Home</span></a>
+        <a href="#kuiper" class="nav-dot"><span class="nav-year">2024</span></a>
+        <a href="#people" class="nav-dot"><span class="nav-year">2022</span></a>
+        <a href="#payments" class="nav-dot"><span class="nav-year">2020</span></a>
+        <a href="#cyber" class="nav-dot"><span class="nav-year">2018</span></a>
+        <a href="#narac" class="nav-dot"><span class="nav-year">2017</span></a>
+        <a href="#autonomy" class="nav-dot"><span class="nav-year">2014</span></a>
+    </nav>
+
     <div class="hero" id="hero">
-        <p>Senior Infrastructure & Security Architect</p>
+        <p>System & Security Architect</p>
         <h1>DANIEL<br>WILLIAMSON</h1>
     </div>
 
@@ -387,113 +310,116 @@
 
         <!-- 1. PROJECT KUIPER -->
         <section id="kuiper">
-            <div class="info-box">
-                <span class="tag">
-                    <svg class="brand-logo" viewBox="0 0 24 24"><path d="M15.93,17.13C14.72,18.86 11.74,19.04 8.46,18.77C5.17,18.5 2.5,17.17 1.5,15.5C1.29,15.15 1.41,14.73 1.76,14.5C2.11,14.28 2.53,14.4 2.76,14.75C3.5,15.91 5.42,17 8.54,17.27C11.66,17.54 13.9,17.39 14.85,16.27L13.03,14.87C12.76,14.66 12.76,14.24 13.04,14.05C13.32,13.86 13.7,13.92 13.92,14.2L16.27,17.06C16.43,17.26 16.42,17.55 16.24,17.74C16.14,17.84 16,17.88 15.86,17.88L15.93,17.13Z"/></svg>
-                    Amazon LEO (Current)
-                </span>
+            <div class="glass-blueprint" data-num="01">
+                <div class="section-tag">
+                    <img src="Amazon_logo.svg" class="company-logo" alt="Amazon">
+                    <span style="font-family: var(--mono); font-size: 0.7rem; color: var(--accent);">AMAZON_LEO // LEO</span>
+                </div>
                 <h2>Satellite Infrastructure</h2>
-                <p class="description">Leading the architectural design for the build-system identity stack for Amazon's LEO satellite constellation.</p>
+                <p style="font-weight: 200; line-height: 1.6;">Designing the secure build-system identity stack for Amazon's LEO satellite constellation. Managing ITAR/EAR compliance at scale.</p>
                 <ul class="details-list">
-                    <li>Developed an automated global export control license management system for ITAR/EAR compliance.</li>
-                    <li>Owning the CUI-compliant Identity Provider (IDP) and Public Key Infrastructure (PKI).</li>
-                    <li>Designed Attribute-Based Access Control (ABAC) systems for granular hardware build permissions.</li>
-                    <li>Implementing robust Device Identity and Posture assessment systems.</li>
+                    <li>Automated Global Export Control License Management</li>
+                    <li>ITAR/EAR Compliant ABAC & IDP Ownership</li>
+                    <li>CUI-Compliant PKI Infrastructure</li>
+                    <li>Device Identity & Security Posture Systems</li>
                 </ul>
             </div>
             <div class="visual-box">
                 <svg class="anim-svg" viewBox="0 0 400 400">
                     <circle class="kuiper-pulse" cx="200" cy="200" r="100" fill="none" />
-                    <circle cx="200" cy="200" r="40" fill="none" stroke="var(--accent)" stroke-width="1" />
+                    <circle cx="200" cy="200" r="50" fill="none" stroke="var(--accent)" stroke-width="0.5" stroke-dasharray="4" />
                     <g>
-                        <animateTransform attributeName="transform" type="rotate" from="0 200 200" to="360 200 200" dur="20s" repeatCount="indefinite" />
-                        <circle cx="300" cy="200" r="6" fill="var(--accent)" />
-                        <line x1="200" y1="200" x2="300" y2="200" stroke="var(--accent)" stroke-width="0.5" stroke-dasharray="4" />
+                        <animateTransform attributeName="transform" type="rotate" from="0 200 200" to="360 200 200" dur="15s" repeatCount="indefinite" />
+                        <rect x="290" y="195" width="20" height="10" fill="var(--accent)" rx="2" />
+                        <line x1="200" y1="200" x2="290" y2="200" stroke="var(--accent)" stroke-width="0.5" stroke-dasharray="2" />
                     </g>
                 </svg>
             </div>
         </section>
 
-        <!-- 2. AMAZON PEOPLE TECH -->
+        <!-- 2. PEOPLE TECH -->
         <section id="people">
             <div class="visual-box">
                 <svg class="anim-svg" viewBox="0 0 400 400">
-                    <rect x="50" y="250" width="40" height="100" fill="var(--accent-dim)" />
-                    <rect x="110" y="200" width="40" height="150" fill="var(--accent-dim)" />
-                    <rect x="170" y="150" width="40" height="200" fill="var(--accent-dim)" />
-                    <rect x="230" y="220" width="40" height="130" fill="var(--accent-dim)" />
-                    <rect x="290" y="100" width="40" height="250" fill="var(--accent)" />
+                    <g transform="translate(50, 350) scale(1, -1)">
+                        <rect x="0" y="0" width="40" height="150" fill="var(--accent-dim)" stroke="var(--accent)" />
+                        <rect x="60" y="0" width="40" height="250" fill="var(--accent-dim)" stroke="var(--accent)" />
+                        <rect x="120" y="0" width="40" height="180" fill="var(--accent-dim)" stroke="var(--accent)" />
+                        <rect x="180" y="0" width="40" height="300" fill="var(--accent)" />
+                        <rect x="240" y="0" width="40" height="220" fill="var(--accent-dim)" stroke="var(--accent)" />
+                    </g>
                 </svg>
             </div>
-            <div class="info-box">
-                <span class="tag">
-                    <svg class="brand-logo" viewBox="0 0 24 24"><path d="M15.93,17.13C14.72,18.86 11.74,19.04 8.46,18.77C5.17,18.5 2.5,17.17 1.5,15.5C1.29,15.15 1.41,14.73 1.76,14.5C2.11,14.28 2.53,14.4 2.76,14.75C3.5,15.91 5.42,17 8.54,17.27C11.66,17.54 13.9,17.39 14.85,16.27L13.03,14.87C12.76,14.66 12.76,14.24 13.04,14.05C13.32,13.86 13.7,13.92 13.92,14.2L16.27,17.06C16.43,17.26 16.42,17.55 16.24,17.74C16.14,17.84 16,17.88 15.86,17.88L15.93,17.13Z"/></svg>
-                    Amazon People Tech
-                </span>
+            <div class="glass-blueprint" data-num="02">
+                <div class="section-tag">
+                    <img src="Amazon_logo.svg" class="company-logo" alt="Amazon">
+                    <span style="font-family: var(--mono); font-size: 0.7rem; color: var(--accent);">PEOPLE_TECH // GLOBAL</span>
+                </div>
                 <h2>HR Automation</h2>
-                <p class="description">Optimized logistics and marketing for Amazon's global fulfillment workforce.</p>
+                <p>Scaling Amazon's fulfillment workforce through automated headcount modeling and high-precision ad-spend engines.</p>
                 <ul class="details-list">
-                    <li>Automated headcount modeling for fulfillment centers based on regional demand and site performance.</li>
-                    <li>Architected an automated marketing engine to optimize spend across Google and Facebook ads for hiring.</li>
+                    <li>Regional Demand & Headcount Modeling</li>
+                    <li>Automated Google/FB Marketing Engine</li>
+                    <li>Global Workforce Optimization Rails</li>
                 </ul>
             </div>
         </section>
 
-        <!-- 3. CAPITAL ONE PAYMENTS -->
+        <!-- 3. PAYMENTS -->
         <section id="payments">
-            <div class="info-box">
-                <span class="tag">
-                    <svg class="brand-logo" viewBox="0 0 24 24"><path d="M2,15C2,15 5,12 12,12C19,12 22,15 22,15L22,13C22,13 19,10 12,10C5,10 2,13 2,13L2,15Z"/></svg>
-                    Capital One - The Payment Exchange
-                </span>
-                <h2>Real-Time Rails</h2>
-                <p class="description">Architected critical components for the movement of capital across real-time and traditional payment networks.</p>
+             <div class="glass-blueprint" data-num="03">
+                <div class="section-tag">
+                    <img src="Capital_One_logo.svg" class="company-logo" alt="Capital One">
+                    <span style="font-family: var(--mono); font-size: 0.7rem; color: var(--accent);">EXCHANGE // REAL_TIME</span>
+                </div>
+                <h2>The Payment Exchange</h2>
+                <p>Engineering the move of capital across SWIFT and FedNow. Building the intelligence layer that blocks the "Bad Bank" in real-time.</p>
                 <ul class="details-list">
-                    <li>Engineered integration for RTP (Real-Time Payments) and FedNow.</li>
-                    <li>Managed mission-critical systems for ACH, Check, and Debit payment processing.</li>
-                    <li>Built the "Bad Bank" API: Integrated SWIFT and Fed intelligence to mitigate fraud and sanction risks in real-time.</li>
+                    <li>RTP & FedNow Integration Architecture</li>
+                    <li>"Bad Bank" API: Sanctions & Fraud Mitigation</li>
+                    <li>High-Throughput Liquidity Rail Engineering</li>
                 </ul>
             </div>
             <div class="visual-box">
                 <svg class="anim-svg" viewBox="0 0 400 400">
-                    <path class="pay-rail" d="M50,200 L350,200" />
-                    
-                    <!-- Looping Money Flow -->
+                    <line x1="50" y1="200" x2="350" y2="200" stroke="var(--accent-dim)" stroke-width="1" />
                     <text class="money-symbol" style="animation-delay: 0s;">$</text>
-                    <text class="money-symbol" style="animation-delay: 1s;">$</text>
-                    <text class="money-symbol" style="animation-delay: 2s;">$</text>
-
-                    <!-- Gateway/Vault Node -->
-                    <rect x="175" y="150" width="50" height="100" fill="var(--bg)" stroke="var(--accent)" rx="5" />
-                    <path d="M185,200 L215,200 M200,185 L200,215" stroke="var(--accent)" stroke-width="1" />
-                    <circle cx="200" cy="180" r="3" fill="var(--accent)">
-                        <animate attributeName="opacity" values="0;1;0" dur="1s" repeatCount="indefinite" />
-                    </circle>
+                    <text class="money-symbol" style="animation-delay: 1.5s;">$</text>
+                    <rect x="175" y="160" width="50" height="80" fill="var(--bg)" stroke="var(--accent)" rx="4" />
+                    <path d="M190,200 L210,200 M200,190 L200,210" stroke="var(--accent)" stroke-width="2" />
                 </svg>
             </div>
         </section>
 
-        <!-- 4. CAPITAL ONE CYBER -->
+        <!-- 4. CYBER RISK -->
         <section id="cyber">
-            <div class="info-box">
-                <span class="tag">
-                    <svg class="brand-logo" viewBox="0 0 24 24"><path d="M2,15C2,15 5,12 12,12C19,12 22,15 22,15L22,13C22,13 19,10 12,10C5,10 2,13 2,13L2,15Z"/></svg>
-                    Capital One - Tech Risk
-                </span>
-                <h2>Cyber Visibility</h2>
-                <p class="description">Developed enterprise-grade monitoring and tech risk visualization tools.</p>
-                <ul class="details-list">
-                    <li>Built real-time cyber security data monitoring for AWS service logs.</li>
-                    <li>Designed and implemented enterprise dashboards for Tech Risk visualization and compliance auditing.</li>
-                </ul>
-            </div>
             <div class="visual-box">
                 <svg class="anim-svg" viewBox="0 0 400 400">
-                    <circle cx="200" cy="200" r="100" fill="none" stroke="var(--accent)" stroke-width="0.5" />
-                    <line x1="200" y1="200" x2="200" y2="100" stroke="var(--accent)" stroke-width="2">
-                        <animateTransform attributeName="transform" type="rotate" from="0 200 200" to="360 200 200" dur="5s" repeatCount="indefinite" />
-                    </line>
+                    <circle cx="200" cy="200" r="120" fill="none" stroke="var(--accent-dim)" stroke-width="0.5" />
+                    <circle cx="200" cy="200" r="80" fill="none" stroke="var(--accent-dim)" stroke-width="0.5" />
+                    <circle cx="200" cy="200" r="40" fill="none" stroke="var(--accent)" stroke-width="1" />
+                    <line x1="200" y1="60" x2="200" y2="340" stroke="var(--accent-dim)" stroke-width="0.3" />
+                    <line x1="60" y1="200" x2="340" y2="200" stroke="var(--accent-dim)" stroke-width="0.3" />
+                    <circle cx="200" cy="80" r="4" fill="var(--accent)" style="animation: pulse 3s infinite;" />
+                    <circle cx="320" cy="200" r="4" fill="var(--accent)" style="animation: pulse 3s 1s infinite;" />
+                    <circle cx="200" cy="320" r="4" fill="var(--accent)" style="animation: pulse 3s 2s infinite;" />
+                    <circle cx="80" cy="200" r="4" fill="var(--accent)" style="animation: pulse 3s 0.5s infinite;" />
+                    <rect x="185" y="185" width="30" height="30" fill="var(--bg)" stroke="var(--accent)" rx="2" />
+                    <path d="M195,205 L200,210 L210,195" fill="none" stroke="var(--accent)" stroke-width="2" />
                 </svg>
+            </div>
+            <div class="glass-blueprint" data-num="04">
+                <div class="section-tag">
+                    <img src="Capital_One_logo.svg" class="company-logo" alt="Capital One">
+                    <span style="font-family: var(--mono); font-size: 0.7rem; color: var(--accent);">CYBER // RISK_VISIBILITY</span>
+                </div>
+                <h2>Cyber Risk & Security</h2>
+                <p>Building enterprise-wide visibility into security posture across cloud infrastructure. Turning raw telemetry into actionable risk intelligence.</p>
+                <ul class="details-list">
+                    <li>AWS Security Log Analysis & Monitoring</li>
+                    <li>Enterprise Cyber Risk Dashboarding</li>
+                    <li>Tech Risk & Compliance Posture Visualization</li>
+                </ul>
             </div>
         </section>
 
@@ -501,117 +427,43 @@
         <section id="narac">
             <div class="visual-box">
                 <svg class="anim-svg" viewBox="0 0 400 400">
-                    <circle class="shockwave" cx="200" cy="300" r="100" />
-                    <g class="mushroom-cloud">
-                        <path d="M190,300 L210,300 L205,260 L195,260 Z" fill="var(--accent)" opacity="0.4" />
-                        <ellipse class="mushroom-cap" cx="200" cy="250" rx="40" ry="20" />
-                        <ellipse class="mushroom-cap" cx="200" cy="235" rx="60" ry="30" style="animation-delay: 0.2s; opacity: 0.3;" />
-                    </g>
-                    <!-- Fallout particles -->
-                    <circle class="particle" cx="150" cy="200" r="2">
-                        <animate attributeName="cy" values="300;100" dur="4s" repeatCount="indefinite" />
-                        <animate attributeName="cx" values="200;100" dur="4s" repeatCount="indefinite" />
-                        <animate attributeName="opacity" values="0;1;0" dur="4s" repeatCount="indefinite" />
-                    </circle>
-                    <circle class="particle" cx="250" cy="220" r="1.5">
-                        <animate attributeName="cy" values="300;150" dur="6s" repeatCount="indefinite" />
-                        <animate attributeName="cx" values="200;350" dur="6s" repeatCount="indefinite" />
-                        <animate attributeName="opacity" values="0;1;0" dur="6s" repeatCount="indefinite" />
-                    </circle>
-                    <circle class="particle" cx="200" cy="250" r="2.5">
-                        <animate attributeName="cy" values="300;50" dur="5s" repeatCount="indefinite" />
-                        <animate attributeName="cx" values="200;250" dur="5s" repeatCount="indefinite" />
-                        <animate attributeName="opacity" values="0;1;0" dur="5s" repeatCount="indefinite" />
-                    </circle>
+                    <circle cx="200" cy="320" r="50" fill="none" stroke="var(--accent)" stroke-width="1" style="animation: pulse 3s infinite;" />
+                    <path d="M190,320 L210,320 L205,250 L195,250 Z" fill="var(--accent)" opacity="0.6" />
+                    <ellipse cx="200" cy="240" rx="60" ry="30" fill="var(--accent)" opacity="0.4" style="animation: pulse 4s infinite;" />
                 </svg>
             </div>
-
-            <script>
-                // Randomized Weather Modeling for Fallout
-                const falloutParticles = document.querySelectorAll('#narac .particle');
-                function updateWeather() {
-                    const windX = (Math.random() * 200) + 50; // Wind velocity 50-250
-                    const windY = (Math.random() * -100) - 100; // Drift -100 to -200
-                    const chaos = Math.random() * 5;
-
-                    falloutParticles.forEach((p, i) => {
-                        const animX = p.querySelector('animate[attributeName="cx"]');
-                        const animY = p.querySelector('animate[attributeName="cy"]');
-                        if (animX) animX.setAttribute('values', `200; ${windX + (i * chaos)}`);
-                        if (animY) animY.setAttribute('values', `300; ${windY - (i * chaos)}`);
-                    });
-                }
-                setInterval(updateWeather, 4000);
-            </script>
-
-            <div class="info-box">
-                <span class="tag">
-                    <svg class="brand-logo" viewBox="0 0 24 24"><path d="M12,2L4.5,20.29L5.21,21L12,18L18.79,21L19.5,20.29L12,2Z"/></svg>
-                    NARAC (Internship)
-                </span>
+            <div class="glass-blueprint" data-num="05">
+                 <div class="section-tag">
+                    <img src="LLNL-logo.png" class="company-logo" alt="LLNL">
+                    <span style="font-family: var(--mono); font-size: 0.7rem; color: var(--accent);">NARAC // DEFENSE</span>
+                </div>
                 <h2>Nuclear Modeling</h2>
-                <p class="description">Supported national security through atmospheric hazard modeling.</p>
+                <p>Supporting national security through atmospheric hazard dispersion modeling for first responders.</p>
                 <ul class="details-list">
-                    <li>Developed nuclear defense modeling tools for the National Atmospheric Release Advisory Center.</li>
-                    <li>Built first-response web applications for real-time atmospheric hazard tracking.</li>
+                    <li>Nuclear Defense Modeling Tools</li>
+                    <li>First-Response Real-Time Hazard Tracking</li>
                 </ul>
             </div>
         </section>
 
         <!-- 6. AUTONOMY -->
         <section id="autonomy">
-            <div class="info-box">
-                <span class="tag">
-                    <svg class="brand-logo" viewBox="0 0 24 24"><path d="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,5.93C16.04,5.55 15.47,5.23 14.86,5.03L14.46,2.54C14.42,2.3 14.22,2.13 13.97,2.13H9.97C9.72,2.13 9.5,2.3 9.48,2.54L9.08,5.03C8.47,5.23 7.9,5.55 7.38,5.93L4.89,5.05C4.67,4.96 4.4,5.05 4.28,5.27L2.28,8.73C2.16,8.95 2.21,9.22 2.4,9.37L4.51,11C4.47,11.34 4.45,11.67 4.45,12C4.45,12.33 4.47,12.65 4.51,12.97L2.4,14.63C2.21,14.78 2.16,15.05 2.28,15.27L4.28,18.73C4.4,18.95 4.67,19.04 4.89,18.95L7.38,18.07C7.9,18.45 8.47,18.77 9.08,18.97L9.48,21.46C9.5,21.7 9.72,21.87 9.97,21.87H13.97C14.22,21.87 14.42,21.7 14.46,21.46L14.86,18.97C15.47,18.77 16.04,18.45 16.56,18.07L19.05,18.95C19.27,19.04 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z"/></svg>
-                    Machine Intelligence Lab
-                </span>
-                <h2>Kinetic Autonomy</h2>
-                <p class="description">Foundational research in high-speed autonomous systems.</p>
+             <div class="glass-blueprint" data-num="06">
+                <div class="section-tag">
+                    <span style="font-family: var(--mono); font-size: 0.7rem; color: var(--accent);">MIL_LAB // KINETIC_RESEARCH</span>
+                </div>
+                <h2>Kinetic Logic</h2>
+                <p>Researching the limits of high-speed autonomy in racing and deep-sea environments.</p>
                 <ul class="details-list">
-                    <li>Autonomous IndyCar: Developed high-speed navigation and pathing software.</li>
-                    <li>Autonomous Submarines: Engineered sonar fusion and underwater obstacle avoidance.</li>
+                    <li>Autonomous IndyCar Pathing Software</li>
+                    <li>Submarine Sonar Fusion & Navigation</li>
                 </ul>
             </div>
             <div class="visual-box">
                 <svg class="anim-svg" viewBox="0 0 400 400">
-                    <!-- SCENE 1: INDYCAR -->
                     <g class="scene scene-car">
-                        <path class="race-track" d="M100,200 A100,60 0 1,0 300,200 A100,60 0 1,0 100,200" />
-                        <g class="race-car">
-                            <path d="M-12,2 L10,2 L14,0 L10,-2 L-12,-2 Z" fill="var(--accent)" />
-                            <rect x="-14" y="-6" width="4" height="12" fill="var(--accent)" />
-                            <rect x="8" y="-5" width="2" height="10" fill="var(--accent)" />
-                            <rect x="-10" y="-7" width="5" height="2" fill="#fff" />
-                            <rect x="-10" y="5" width="5" height="2" fill="#fff" />
-                            <rect x="5" y="-6" width="4" height="2" fill="#fff" />
-                            <rect x="5" y="4" width="4" height="2" fill="#fff" />
-                        </g>
-                        <text x="200" y="350" text-anchor="middle" fill="var(--accent)" font-family="var(--mono)" font-size="12">AUTONOMOUS INDYCAR // OPTIMAL PATH</text>
-                    </g>
-                    <!-- SCENE 2: SUBMARINE -->
-                    <g class="scene scene-sub">
-                        <!-- Obstacles -->
-                        <circle cx="150" cy="250" r="15" fill="none" stroke="red" stroke-width="1" opacity="0.5" />
-                        <circle cx="250" cy="320" r="20" fill="none" stroke="red" stroke-width="1" opacity="0.5" />
-                        <circle cx="300" cy="200" r="10" fill="none" stroke="red" stroke-width="1" opacity="0.5" />
-                        <!-- High-Fidelity Submarine -->
-                        <g class="submarine">
-                            <path d="M-25,0 C-25,-12 15,-12 28,0 C28,12 -25,12 -25,0 Z" fill="var(--accent)" />
-                            <path d="M-5,-10 L5,-10 L7,-2 L-7,-2 Z" fill="var(--accent)" />
-                            <path d="M-25,-5 L-32,-8 L-32,8 L-25,5 Z" fill="var(--accent)" />
-                            <rect x="-35" y="-4" width="2" height="8" fill="var(--accent)" opacity="0.6">
-                                <animate attributeName="opacity" values="0.2;0.8;0.2" dur="0.1s" repeatCount="indefinite" />
-                            </rect>
-                            <circle cx="18" cy="0" r="1.5" fill="var(--bg)" />
-                        </g>
-                        <!-- Capture Target -->
-                        <g transform="translate(200, 100)">
-                            <circle r="15" fill="none" stroke="var(--accent)" stroke-width="1">
-                                <animate attributeName="r" values="10;20;10" dur="2s" repeatCount="indefinite" />
-                            </circle>
-                            <path d="M-10,0 L10,0 M0,-10 L0,10" stroke="var(--accent)" stroke-width="2" />
-                        </g>
-                        <text x="200" y="380" text-anchor="middle" fill="var(--accent)" font-family="var(--mono)" font-size="12">AUTONOMOUS SUBMARINE // TARGET CAPTURE</text>
+                        <path d="M100,200 A100,60 0 1,0 300,200 A100,60 0 1,0 100,200" fill="none" stroke="var(--accent-dim)" stroke-width="40" />
+                        <rect x="-10" y="-5" width="20" height="10" fill="var(--accent)" rx="2" style="offset-path: path('M100,200 A100,60 0 1,0 300,200 A100,60 0 1,0 100,200'); animation: race 4s linear infinite;" />
                     </g>
                 </svg>
             </div>
@@ -620,20 +472,71 @@
     </div>
 
     <footer>
-        <p>Built by Daniel Williamson // &copy;2018 // Secure Infrastructure Architect</p>
+        [ ESTABLISHED ACCESS 2018 ] // ARCHITECTED BY DANIEL WILLIAMSON
     </footer>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-        // Smooth scroll for nav
-        document.querySelectorAll('.nav-dot').forEach(dot => {
-            dot.addEventListener('click', function(e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                target.scrollIntoView({ behavior: 'smooth' });
-            });
+        // --- 1. BOOT SEQUENCE ---
+        const bootLog = document.getElementById('boot-log');
+        const logs = [
+            "DW_CORE_OS V.4.0.2 INITIALIZING...",
+            "AUTHENTICATING IDENTITY: D_WILLIAMSON",
+            "SATELLITE_LINK: AMAZON_LEO... ONLINE",
+            "SECURITY_POSTURE... VALIDATED",
+            "LOADING ARCHITECTURAL_MANIFEST...",
+            "ACCESS GRANTED."
+        ];
+        let l = 0;
+        const interval = setInterval(() => {
+            if(l < logs.length) {
+                const d = document.createElement('div');
+                d.textContent = `> ${logs[l]}`;
+                bootLog.appendChild(d);
+                l++;
+            } else {
+                clearInterval(interval);
+                setTimeout(() => {
+                    document.getElementById('boot-screen').style.transform = 'translateY(-100%)';
+                    document.getElementById('boot-screen').style.transition = 'transform 1.2s cubic-bezier(1,0,0,1)';
+                }, 800);
+            }
+        }, 150);
+
+        // --- 2. THREE.JS BACKGROUND ---
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('three-canvas'), antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        
+        const starGeom = new THREE.BufferGeometry();
+        const starVerts = [];
+        for (let i = 0; i < 6000; i++) {
+            starVerts.push(THREE.MathUtils.randFloatSpread(2000), THREE.MathUtils.randFloatSpread(2000), THREE.MathUtils.randFloatSpread(2000));
+        }
+        starGeom.setAttribute('position', new THREE.Float32BufferAttribute(starVerts, 3));
+        const starMat = new THREE.PointsMaterial({ color: 0x00f2ff, size: 1.5, transparent: true, opacity: 0.4 });
+        const stars = new THREE.Points(starGeom, starMat);
+        scene.add(stars);
+
+        camera.position.z = 500;
+        function animate() {
+            requestAnimationFrame(animate);
+            stars.rotation.y += 0.0003;
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // --- 3. UI LOGIC ---
+        const cursor = document.getElementById('cursor');
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX - 15 + 'px';
+            cursor.style.top = e.clientY - 15 + 'px';
+            const x = (e.clientX / window.innerWidth - 0.5) * 40;
+            const y = (e.clientY / window.innerHeight - 0.5) * 40;
+            camera.position.x = x; camera.position.y = -y;
         });
 
-        // Intersection Observer for active nav state
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -643,8 +546,9 @@
                 }
             });
         }, { threshold: 0.5 });
-
         document.querySelectorAll('section, .hero').forEach(s => observer.observe(s));
     </script>
+
+    <style> @keyframes race { from { offset-distance: 0%; } to { offset-distance: 100%; } } </style>
 </body>
 </html>
