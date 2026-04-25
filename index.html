@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daniel Williamson | Infrastructure & Security Architect</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='none' stroke='%2300f2ff' stroke-width='2'/><circle cx='80' cy='30' r='6' fill='%2300f2ff'/></svg>">
     <style>
         :root {
             --bg: #080a0c;
@@ -243,10 +244,13 @@
 
         /* Payments: Flow */
         .pay-flow {
-            stroke-dasharray: 20;
-            animation: flow 2s linear infinite;
+            stroke-dasharray: 40;
+            animation: flow 1s linear infinite;
         }
-        @keyframes flow { to { stroke-dashoffset: -100; } }
+        @keyframes flow { 
+            from { stroke-dashoffset: 80; }
+            to { stroke-dashoffset: 0; }
+        }
 
         /* NARAC: Fallout/Explosion */
         .mushroom-cloud { transform-origin: center 300px; }
