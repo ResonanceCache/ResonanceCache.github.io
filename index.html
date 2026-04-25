@@ -243,13 +243,20 @@
         .id-node { fill: #fff; }
 
         /* Payments: Flow */
-        .pay-flow {
-            stroke-dasharray: 40;
-            animation: flow 1s linear infinite;
+        .pay-rail { stroke: var(--accent-dim); stroke-width: 1; fill: none; }
+        .money-symbol {
+            fill: var(--accent);
+            font-family: var(--mono);
+            font-size: 24px;
+            font-weight: bold;
+            offset-path: path('M50,200 L350,200');
+            animation: flow-money 3s linear infinite;
         }
-        @keyframes flow { 
-            from { stroke-dashoffset: 80; }
-            to { stroke-dashoffset: 0; }
+        @keyframes flow-money {
+            0% { offset-distance: 0%; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { offset-distance: 100%; opacity: 0; }
         }
 
         /* NARAC: Fallout/Explosion */
@@ -393,9 +400,19 @@
             </div>
             <div class="visual-box">
                 <svg class="anim-svg" viewBox="0 0 400 400">
-                    <path class="pay-flow" d="M50,200 L350,200" stroke="var(--accent)" stroke-width="2" fill="none" />
+                    <path class="pay-rail" d="M50,200 L350,200" />
+                    
+                    <!-- Looping Money Flow -->
+                    <text class="money-symbol" style="animation-delay: 0s;">$</text>
+                    <text class="money-symbol" style="animation-delay: 1s;">$</text>
+                    <text class="money-symbol" style="animation-delay: 2s;">$</text>
+
+                    <!-- Gateway/Vault Node -->
                     <rect x="175" y="150" width="50" height="100" fill="var(--bg)" stroke="var(--accent)" rx="5" />
                     <path d="M185,200 L215,200 M200,185 L200,215" stroke="var(--accent)" stroke-width="1" />
+                    <circle cx="200" cy="180" r="3" fill="var(--accent)">
+                        <animate attributeName="opacity" values="0;1;0" dur="1s" repeatCount="indefinite" />
+                    </circle>
                 </svg>
             </div>
         </section>
