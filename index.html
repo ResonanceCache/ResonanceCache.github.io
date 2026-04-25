@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daniel Williamson | Infrastructure & Security Architect</title>
+    <meta name="description" content="Infrastructure & Security Architect — Amazon Kuiper, Capital One, LLNL. IAM, PKI, real-time payments, autonomous systems.">
+    <meta property="og:title" content="Daniel Williamson | Infrastructure & Security Architect">
+    <meta property="og:description" content="Designing secure systems at satellite scale. IAM, PKI, real-time payments, autonomous systems.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://resonancecache.github.io/favicon.ico">
+    <meta name="twitter:card" content="summary">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='black'/><circle cx='50' cy='50' r='38' fill='none' stroke='%2300f2ff' stroke-width='6'/><circle cx='80' cy='30' r='10' fill='%2300f2ff'/></svg>">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;400;800&family=JetBrains+Mono:wght@300;500&family=Space+Grotesk:wght@300;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -18,6 +25,10 @@
         }
 
         * { cursor: none !important; box-sizing: border-box; }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+            .scanlines { display: none; }
+        }
 
         body {
             background-color: var(--bg);
@@ -28,256 +39,190 @@
             scroll-behavior: smooth;
         }
 
-        /* 1. BOOT SEQUENCE */
+        /* BOOT SEQUENCE */
         #boot-screen {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #000;
-            z-index: 10000;
-            display: flex;
-            flex-direction: column;
-            padding: 3rem;
-            font-family: var(--mono);
-            color: var(--accent);
-            font-size: 0.8rem;
-            line-height: 1.5;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 10000;
+            display: flex; flex-direction: column; padding: 3rem;
+            font-family: var(--mono); color: var(--accent); font-size: 0.8rem; line-height: 1.5;
         }
 
-        /* 2. BACKGROUND & CANVAS */
-        #three-canvas {
-            position: fixed;
-            top: 0; left: 0;
-            z-index: -1;
-            opacity: 0.6;
-        }
-
+        /* BACKGROUND & CANVAS */
+        #three-canvas { position: fixed; top: 0; left: 0; z-index: -1; opacity: 0.6; }
         .scanlines {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
-            background-size: 100% 4px;
-            z-index: 5;
-            pointer-events: none;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.1) 50%);
+            background-size: 100% 4px; z-index: 5; pointer-events: none;
         }
 
-        /* 3. CUSTOM CURSOR */
+        /* CUSTOM CURSOR */
         #cursor {
-            position: fixed;
-            width: 30px; height: 30px;
-            border: 1px solid var(--accent);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 9999;
-            transition: transform 0.15s ease-out;
+            position: fixed; width: 30px; height: 30px;
+            border: 1px solid var(--accent); border-radius: 50%;
+            pointer-events: none; z-index: 9999;
+            transition: width 0.3s, height 0.3s, border-radius 0.3s, border-color 0.3s, background 0.3s;
             display: flex; align-items: center; justify-content: center;
+            will-change: transform;
         }
-        #cursor::after { content: ""; width: 4px; height: 4px; background: var(--accent); border-radius: 50%; }
+        #cursor::after { content: ""; width: 4px; height: 4px; background: var(--accent); border-radius: 50%; transition: transform 0.3s; }
+        #cursor.hover-link { width: 50px; height: 50px; background: rgba(0,242,255,0.08); border-color: var(--accent); }
+        #cursor.hover-link::after { transform: scale(2); }
+        #cursor.hover-text { width: 4px; height: 40px; border-radius: 2px; border-color: var(--accent); mix-blend-mode: difference; }
+        #cursor.hover-text::after { display: none; }
+        .cursor-trail {
+            position: fixed; width: 6px; height: 6px;
+            background: var(--accent); border-radius: 50%;
+            pointer-events: none; z-index: 9998; opacity: 0;
+            will-change: transform, opacity;
+        }
 
-        /* 4. NAVIGATION TIMELINE */
+        /* NAVIGATION TIMELINE */
         .nav-container {
-            position: fixed;
-            top: 50%; right: 3vw;
-            transform: translateY(-50%);
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-            gap: 2.5rem;
-            align-items: center;
+            position: fixed; top: 50%; right: 3vw; transform: translateY(-50%);
+            z-index: 100; display: flex; flex-direction: column; gap: 2.5rem; align-items: center;
         }
-
         .nav-container::before {
-            content: "";
-            position: absolute;
-            top: 0; bottom: 0; right: 6px;
-            width: 1px;
-            background: linear-gradient(to bottom, transparent, var(--accent), transparent);
-            opacity: 0.2;
+            content: ""; position: absolute; top: 0; bottom: 0; right: 6px; width: 1px;
+            background: linear-gradient(to bottom, transparent, var(--accent), transparent); opacity: 0.2;
         }
-
         .nav-dot {
-            width: 12px; height: 12px;
-            border: 1px solid var(--accent);
-            border-radius: 50%;
-            background: var(--bg);
-            cursor: pointer;
-            position: relative;
-            transition: all 0.3s ease;
-            text-decoration: none;
+            width: 12px; height: 12px; border: 1px solid var(--accent); border-radius: 50%;
+            background: var(--bg); position: relative; transition: all 0.3s ease; text-decoration: none;
+            padding: 0;
         }
-
+        .nav-dot::after {
+            content: ""; position: absolute;
+            top: -10px; bottom: -10px; left: -60px; right: -10px;
+        }
         .nav-dot.active, .nav-dot:hover {
-            background: var(--accent);
-            box-shadow: 0 0 15px var(--accent);
-            transform: scale(1.4);
+            background: var(--accent); box-shadow: 0 0 15px var(--accent); transform: scale(1.4);
         }
-
         .nav-year {
-            position: absolute;
-            right: 30px; top: 50%;
-            transform: translateY(-50%);
-            font-family: var(--mono);
-            font-size: 0.7rem;
-            color: var(--accent);
-            opacity: 0.4;
-            transition: 0.3s;
+            position: absolute; right: 30px; top: 50%; transform: translateY(-50%);
+            font-family: var(--mono); font-size: 0.7rem; color: var(--accent); opacity: 0.4; transition: 0.3s;
         }
         .nav-dot.active .nav-year { opacity: 1; font-weight: 800; }
 
-        /* 5. HERO */
+        /* HERO */
         .hero {
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            position: relative;
+            height: 100vh; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; text-align: center; position: relative;
         }
-
         .hero h1 {
-            font-family: var(--title);
-            font-size: clamp(4rem, 18vw, 14rem);
-            font-weight: 700;
-            margin: 0;
-            line-height: 0.8;
-            letter-spacing: -0.06em;
-            background: linear-gradient(to bottom, #fff 40%, #333);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-family: var(--title); font-size: clamp(4rem, 18vw, 14rem); font-weight: 700;
+            margin: 0; line-height: 0.8; letter-spacing: -0.06em;
+            background: linear-gradient(to bottom, #fff 50%, #bbb);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
-
         .hero p {
-            font-family: var(--mono);
-            color: var(--accent);
-            margin-top: 2rem;
-            letter-spacing: 0.6rem;
-            text-transform: uppercase;
-            font-size: 0.9rem;
-            opacity: 0.8;
+            font-family: var(--mono); color: var(--accent); margin-top: 2rem;
+            letter-spacing: 0.6rem; text-transform: uppercase; font-size: 0.9rem; opacity: 0.8;
         }
-
-        /* 6. CONTENT SECTIONS (BLUEPRINT STYLE) */
-        .content-container {
-            max-width: 1300px;
-            margin: 0 auto;
-            padding: 0 5vw;
+        .hero-status {
+            margin-top: 3rem; font-family: var(--mono); font-size: 0.7rem; color: var(--text-dim);
+            display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center;
         }
+        .hero-status span { display: flex; align-items: center; gap: 0.5rem; }
+        .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #0f0; animation: blink 2s infinite; }
+        @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
 
+        /* CONTENT SECTIONS */
+        .content-container { max-width: 1300px; margin: 0 auto; padding: 0 5vw; }
         section {
-            min-height: 100vh;
-            padding: 15vh 0;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 6rem;
-            align-items: center;
+            min-height: 100vh; padding: 15vh 0;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; align-items: center;
         }
-
         @media (max-width: 1100px) {
             section { grid-template-columns: 1fr; }
             .visual-box { order: -1; height: 400px !important; }
         }
-
         .glass-blueprint {
-            background: rgba(255, 255, 255, 0.02);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 4px;
-            padding: 3rem;
-            position: relative;
+            background: rgba(255,255,255,0.02); backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.05); border-radius: 4px; padding: 3rem; position: relative;
+            opacity: 0; transform: translateY(60px);
         }
-
         .glass-blueprint::before {
             content: "SYSTEM_SCHEMA_V."+attr(data-num);
-            position: absolute;
-            top: -10px; left: 20px;
-            background: var(--accent);
-            color: #000;
-            font-family: var(--mono);
-            font-size: 0.6rem;
-            padding: 2px 8px;
-            font-weight: 800;
+            position: absolute; top: -10px; left: 20px; background: var(--accent); color: #000;
+            font-family: var(--mono); font-size: 0.6rem; padding: 2px 8px; font-weight: 800;
         }
-
-        .section-tag {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-
-        .company-logo {
-            height: 30px;
-            filter: grayscale(1) brightness(5);
-            transition: 0.3s ease;
-        }
-
-        section:hover .company-logo {
-            filter: grayscale(1) brightness(10);
-        }
-
+        .section-tag { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; }
+        .company-logo { height: 30px; filter: grayscale(1) brightness(5); transition: 0.3s ease; }
+        section:hover .company-logo { filter: grayscale(1) brightness(10); }
         h2 {
-            font-family: var(--title);
-            font-size: clamp(2.5rem, 6vw, 4.5rem);
-            margin: 0 0 2rem 0;
-            letter-spacing: -0.04em;
-            line-height: 1;
+            font-family: var(--title); font-size: clamp(2.5rem, 6vw, 4.5rem);
+            margin: 0 0 2rem 0; letter-spacing: -0.04em; line-height: 1;
         }
-
-        .details-list {
-            list-style: none; padding: 0;
-            font-family: var(--mono);
-            font-size: 0.85rem;
-            color: var(--text-dim);
-        }
-
-        .details-list li {
-            margin-bottom: 1.2rem;
-            display: flex; gap: 1rem;
-        }
-
+        .details-list { list-style: none; padding: 0; font-family: var(--mono); font-size: 0.85rem; color: var(--text-dim); }
+        .details-list li { margin-bottom: 1.2rem; display: flex; gap: 1rem; opacity: 0; transform: translateX(-20px); }
         .details-list li::before { content: ">>"; color: var(--accent); font-weight: 800; }
-
         .visual-box {
-            width: 100%; height: 500px;
-            border: 1px dashed var(--accent-dim);
-            position: relative;
-            overflow: hidden;
-            display: flex; justify-content: center; align-items: center;
+            width: 100%; height: 500px; border: 1px dashed var(--accent-dim);
+            position: relative; overflow: hidden; display: flex; justify-content: center; align-items: center;
+            opacity: 0; transform: scale(0.9);
         }
 
-        /* 7. ANIMATIONS */
+        /* KUIPER GLOBE CANVAS */
+        #kuiper-globe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
+        /* ANIMATIONS */
         .anim-svg { width: 90%; height: 90%; }
-        
-        /* Kuiper: Orbital Logic */
         .kuiper-pulse { stroke: var(--accent); stroke-width: 0.5; animation: pulse 4s infinite; }
         @keyframes pulse { 0% { r: 20; opacity: 1; } 100% { r: 180; opacity: 0; } }
-
-        /* Payments: Money Flow */
         .money-symbol {
-            fill: var(--accent);
-            font-family: var(--mono);
-            font-size: 24px;
-            offset-path: path('M50,250 L350,250');
-            animation: money-flow 3s linear infinite;
+            fill: var(--accent); font-family: var(--mono); font-size: 24px;
+            offset-path: path('M50,250 L350,250'); animation: money-flow 3s linear infinite;
         }
         @keyframes money-flow { from { offset-distance: 0%; } to { offset-distance: 100%; } }
-
-        /* Autonomy Scene Toggle */
         .scene { transition: opacity 0.8s; }
         .scene-car { animation: scene-1 12s infinite; }
         .scene-sub { animation: scene-2 12s infinite; }
-        @keyframes scene-1 { 0%, 45% { opacity: 1; } 50%, 100% { opacity: 0; } }
-        @keyframes scene-2 { 0%, 50% { opacity: 0; } 55%, 95% { opacity: 1; } 100% { opacity: 0; } }
+        @keyframes scene-1 { 0%,45% { opacity: 1; } 50%,100% { opacity: 0; } }
+        @keyframes scene-2 { 0%,50% { opacity: 0; } 55%,95% { opacity: 1; } 100% { opacity: 0; } }
+        @keyframes race { from { offset-distance: 0%; } to { offset-distance: 100%; } }
+
+        /* COUNTERS */
+        .stat-row { display: flex; gap: 2rem; margin-top: 1.5rem; flex-wrap: wrap; }
+        .stat { font-family: var(--mono); }
+        .stat-num { font-size: 1.8rem; color: var(--accent); font-weight: 700; }
+        .stat-label { font-size: 0.6rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; }
+
+        /* SOUND TOGGLE */
+        #sound-toggle {
+            position: fixed; bottom: 2rem; left: 2rem; z-index: 200;
+            font-family: var(--mono); font-size: 0.7rem; color: var(--accent);
+            background: rgba(0,242,255,0.05); border: 1px solid rgba(0,242,255,0.2);
+            padding: 0.4rem 0.8rem; border-radius: 2px; text-decoration: none;
+            transition: 0.3s;
+        }
+        #sound-toggle:hover { background: rgba(0,242,255,0.15); }
+
+        /* TERMINAL OVERLAY */
+        #terminal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); z-index: 11000;
+            display: none; flex-direction: column; padding: 2rem;
+            font-family: var(--mono); color: var(--accent); font-size: 0.85rem;
+        }
+        #terminal-overlay.active { display: flex; }
+        #terminal-output { flex: 1; overflow-y: auto; white-space: pre-wrap; line-height: 1.6; padding-bottom: 1rem; }
+        #terminal-input-line { display: flex; gap: 0.5rem; align-items: center; }
+        #terminal-input-line span { color: var(--accent); }
+        #terminal-input {
+            background: none; border: none; color: var(--text); font-family: var(--mono);
+            font-size: 0.85rem; flex: 1; outline: none; caret-color: var(--accent);
+        }
+        .terminal-hint {
+            position: fixed; bottom: 2rem; right: 8vw; z-index: 100;
+            font-family: var(--mono); font-size: 0.65rem; color: var(--text-dim); opacity: 0.3;
+            transition: 0.3s;
+        }
+        .terminal-hint:hover { opacity: 0.8; }
 
         footer {
-            padding: 10rem 0 5rem;
-            text-align: center;
-            font-family: var(--mono);
-            font-size: 0.7rem;
-            opacity: 0.4;
-            letter-spacing: 2px;
+            padding: 10rem 0 5rem; text-align: center;
+            font-family: var(--mono); font-size: 0.7rem; opacity: 0.4; letter-spacing: 2px;
         }
-
     </style>
 </head>
 <body>
@@ -285,26 +230,32 @@
     <div id="cursor"></div>
     <div class="scanlines"></div>
 
-    <div id="boot-screen">
-        <div id="boot-log"></div>
-    </div>
+    <div id="boot-screen"><div id="boot-log"></div></div>
 
     <canvas id="three-canvas"></canvas>
 
-    <nav class="nav-container">
+    <a id="sound-toggle" href="#" onclick="toggleSound(event)">♪ SFX: OFF</a>
+    <div class="terminal-hint">Press ` for terminal</div>
+
+    <nav class="nav-container" data-magnetic>
         <a href="#hero" class="nav-dot active"><span class="nav-year">Home</span></a>
-        <a href="#kuiper" class="nav-dot"><span class="nav-year">2024</span></a>
-        <a href="#people" class="nav-dot"><span class="nav-year">2022</span></a>
-        <a href="#payments" class="nav-dot"><span class="nav-year">2020</span></a>
-        <a href="#cyber" class="nav-dot"><span class="nav-year">2018</span></a>
-        <a href="#narac" class="nav-dot"><span class="nav-year">2017</span></a>
-        <a href="#autonomy" class="nav-dot"><span class="nav-year">2014</span></a>
+        <a href="#kuiper" class="nav-dot"><span class="nav-year">2025</span></a>
+        <a href="#people" class="nav-dot"><span class="nav-year">2024</span></a>
+        <a href="#payments" class="nav-dot"><span class="nav-year">2022</span></a>
+        <a href="#cyber" class="nav-dot"><span class="nav-year">2020</span></a>
+        <a href="#narac" class="nav-dot"><span class="nav-year">2019</span></a>
+        <a href="#autonomy" class="nav-dot"><span class="nav-year">2018</span></a>
     </nav>
 
     <div class="hero" id="hero">
         <p>System & Security Architect</p>
         <h1>DANIEL<br>WILLIAMSON</h1>
+        <div class="hero-status">
+            <span><span class="status-dot"></span> Currently building at Amazon Leo</span>
+            <span id="local-time"></span>
+        </div>
     </div>
+
 
     <div class="content-container">
 
@@ -313,10 +264,10 @@
             <div class="glass-blueprint" data-num="01">
                 <div class="section-tag">
                     <img src="Amazon_logo.svg" class="company-logo" alt="Amazon">
-                    <span style="font-family: var(--mono); font-size: 0.7rem; color: var(--accent);">AMAZON_LEO // LEO</span>
+                    <span style="font-family:var(--mono);font-size:0.7rem;color:var(--accent);">AMAZON_LEO // LEO</span>
                 </div>
-                <h2>Satellite Infrastructure</h2>
-                <p style="font-weight: 200; line-height: 1.6;">Designing the secure build-system identity stack for Amazon's LEO satellite constellation. Managing ITAR/EAR compliance at scale.</p>
+                <h2>Satellite Build Systems</h2>
+                <p style="font-weight:200;line-height:1.6;">Designing the secure build-system identity stack for Amazon's LEO satellite constellation. Managing ITAR/EAR compliance at scale.</p>
                 <ul class="details-list">
                     <li>Automated Global Export Control License Management</li>
                     <li>ITAR/EAR Compliant ABAC & IDP Ownership</li>
@@ -324,36 +275,28 @@
                     <li>Device Identity & Security Posture Systems</li>
                 </ul>
             </div>
-            <div class="visual-box">
-                <svg class="anim-svg" viewBox="0 0 400 400">
-                    <circle class="kuiper-pulse" cx="200" cy="200" r="100" fill="none" />
-                    <circle cx="200" cy="200" r="50" fill="none" stroke="var(--accent)" stroke-width="0.5" stroke-dasharray="4" />
-                    <g>
-                        <animateTransform attributeName="transform" type="rotate" from="0 200 200" to="360 200 200" dur="15s" repeatCount="indefinite" />
-                        <rect x="290" y="195" width="20" height="10" fill="var(--accent)" rx="2" />
-                        <line x1="200" y1="200" x2="290" y2="200" stroke="var(--accent)" stroke-width="0.5" stroke-dasharray="2" />
-                    </g>
-                </svg>
+            <div class="visual-box" id="kuiper-visual">
+                <canvas id="kuiper-globe"></canvas>
             </div>
         </section>
 
         <!-- 2. PEOPLE TECH -->
         <section id="people">
             <div class="visual-box">
-                <svg class="anim-svg" viewBox="0 0 400 400">
+                <svg class="anim-svg" id="hr-chart" viewBox="0 0 400 400">
                     <g transform="translate(50, 350) scale(1, -1)">
-                        <rect x="0" y="0" width="40" height="150" fill="var(--accent-dim)" stroke="var(--accent)" />
-                        <rect x="60" y="0" width="40" height="250" fill="var(--accent-dim)" stroke="var(--accent)" />
-                        <rect x="120" y="0" width="40" height="180" fill="var(--accent-dim)" stroke="var(--accent)" />
-                        <rect x="180" y="0" width="40" height="300" fill="var(--accent)" />
-                        <rect x="240" y="0" width="40" height="220" fill="var(--accent-dim)" stroke="var(--accent)" />
+                        <rect class="hr-bar" x="0" y="0" width="40" height="0" fill="var(--accent-dim)" stroke="var(--accent)" data-h="150" />
+                        <rect class="hr-bar" x="60" y="0" width="40" height="0" fill="var(--accent-dim)" stroke="var(--accent)" data-h="250" />
+                        <rect class="hr-bar" x="120" y="0" width="40" height="0" fill="var(--accent-dim)" stroke="var(--accent)" data-h="180" />
+                        <rect class="hr-bar" x="180" y="0" width="40" height="0" fill="var(--accent)" data-h="300" />
+                        <rect class="hr-bar" x="240" y="0" width="40" height="0" fill="var(--accent-dim)" stroke="var(--accent)" data-h="220" />
                     </g>
                 </svg>
             </div>
             <div class="glass-blueprint" data-num="02">
                 <div class="section-tag">
                     <img src="Amazon_logo.svg" class="company-logo" alt="Amazon">
-                    <span style="font-family: var(--mono); font-size: 0.7rem; color: var(--accent);">PEOPLE_TECH // GLOBAL</span>
+                    <span style="font-family:var(--mono);font-size:0.7rem;color:var(--accent);">PEOPLE_TECH // GLOBAL</span>
                 </div>
                 <h2>HR Automation</h2>
                 <p>Scaling Amazon's fulfillment workforce through automated headcount modeling and high-precision ad-spend engines.</p>
@@ -367,10 +310,10 @@
 
         <!-- 3. PAYMENTS -->
         <section id="payments">
-             <div class="glass-blueprint" data-num="03">
+            <div class="glass-blueprint" data-num="03">
                 <div class="section-tag">
                     <img src="Capital_One_logo.svg" class="company-logo" alt="Capital One">
-                    <span style="font-family: var(--mono); font-size: 0.7rem; color: var(--accent);">EXCHANGE // REAL_TIME</span>
+                    <span style="font-family:var(--mono);font-size:0.7rem;color:var(--accent);">EXCHANGE // REAL_TIME</span>
                 </div>
                 <h2>The Payment Exchange</h2>
                 <p>Engineering the move of capital across SWIFT and FedNow. Building the intelligence layer that blocks the "Bad Bank" in real-time.</p>
@@ -381,12 +324,75 @@
                 </ul>
             </div>
             <div class="visual-box">
-                <svg class="anim-svg" viewBox="0 0 400 400">
-                    <line x1="50" y1="200" x2="350" y2="200" stroke="var(--accent-dim)" stroke-width="1" />
-                    <text class="money-symbol" style="animation-delay: 0s;">$</text>
-                    <text class="money-symbol" style="animation-delay: 1.5s;">$</text>
-                    <rect x="175" y="160" width="50" height="80" fill="var(--bg)" stroke="var(--accent)" rx="4" />
-                    <path d="M190,200 L210,200 M200,190 L200,210" stroke="var(--accent)" stroke-width="2" />
+                <svg class="anim-svg" viewBox="0 0 500 400">
+                    <defs>
+                        <filter id="glow"><feGaussianBlur stdDeviation="2" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                    </defs>
+                    <!-- Left phone -->
+                    <rect x="20" y="160" width="30" height="55" rx="4" fill="none" stroke="var(--accent)" stroke-width="1.5"/>
+                    <rect x="26" y="168" width="18" height="30" fill="var(--accent-dim)"/>
+                    <line x1="32" y1="205" x2="38" y2="205" stroke="var(--accent)" stroke-width="1"/>
+                    <!-- Right phone -->
+                    <rect x="450" y="160" width="30" height="55" rx="4" fill="none" stroke="var(--accent)" stroke-width="1.5"/>
+                    <rect x="456" y="168" width="18" height="30" fill="var(--accent-dim)"/>
+                    <line x1="462" y1="205" x2="468" y2="205" stroke="var(--accent)" stroke-width="1"/>
+                    <!-- DAG edges -->
+                    <g stroke="var(--accent-dim)" stroke-width="0.8" fill="none">
+                        <path d="M50,187 L120,120"/>
+                        <path d="M50,187 L120,187"/>
+                        <path d="M50,187 L120,260"/>
+                        <path d="M120,120 L220,100"/>
+                        <path d="M120,120 L220,170"/>
+                        <path d="M120,187 L220,170"/>
+                        <path d="M120,187 L220,240"/>
+                        <path d="M120,260 L220,240"/>
+                        <path d="M120,260 L220,300"/>
+                        <path d="M220,100 L320,140"/>
+                        <path d="M220,170 L320,140"/>
+                        <path d="M220,170 L320,240"/>
+                        <path d="M220,240 L320,240"/>
+                        <path d="M220,300 L320,240"/>
+                        <path d="M320,140 L400,187"/>
+                        <path d="M320,240 L400,187"/>
+                        <path d="M400,187 L450,187"/>
+                    </g>
+                    <!-- DAG nodes -->
+                    <g filter="url(#glow)">
+                        <circle cx="120" cy="120" r="5" fill="var(--bg)" stroke="var(--accent)" stroke-width="1"/>
+                        <circle cx="120" cy="187" r="5" fill="var(--bg)" stroke="var(--accent)" stroke-width="1"/>
+                        <circle cx="120" cy="260" r="5" fill="var(--bg)" stroke="var(--accent)" stroke-width="1"/>
+                        <circle cx="220" cy="100" r="5" fill="var(--bg)" stroke="var(--accent)" stroke-width="1"/>
+                        <circle cx="220" cy="170" r="5" fill="var(--bg)" stroke="var(--accent)" stroke-width="1"/>
+                        <circle cx="220" cy="240" r="5" fill="var(--bg)" stroke="var(--accent)" stroke-width="1"/>
+                        <circle cx="220" cy="300" r="5" fill="var(--bg)" stroke="var(--accent)" stroke-width="1"/>
+                        <circle cx="320" cy="140" r="5" fill="var(--bg)" stroke="var(--accent)" stroke-width="1"/>
+                        <circle cx="320" cy="240" r="5" fill="var(--bg)" stroke="var(--accent)" stroke-width="1"/>
+                    </g>
+                    <!-- Node labels -->
+                    <g font-family="var(--mono)" font-size="7" fill="var(--text-dim)">
+                        <text x="108" y="110">SWIFT</text>
+                        <text x="105" y="180">FedNow</text>
+                        <text x="113" y="275">ACH</text>
+                        <text x="207" y="92">KYC</text>
+                        <text x="205" y="163">AML</text>
+                        <text x="200" y="233">SANCTIONS</text>
+                        <text x="207" y="315">DEBIT</text>
+                        <text x="305" y="132">CLEAR</text>
+                        <text x="302" y="255">SETTLE</text>
+                    </g>
+                    <!-- Animated pulses along paths -->
+                    <circle r="3" fill="var(--accent)" opacity="0.9" filter="url(#glow)">
+                        <animateMotion dur="3s" repeatCount="indefinite" path="M50,187 L120,120 L220,100 L320,140 L400,187 L450,187"/>
+                    </circle>
+                    <circle r="3" fill="var(--accent)" opacity="0.9" filter="url(#glow)">
+                        <animateMotion dur="3.5s" repeatCount="indefinite" path="M50,187 L120,187 L220,170 L320,140 L400,187 L450,187"/>
+                    </circle>
+                    <circle r="3" fill="var(--accent)" opacity="0.7" filter="url(#glow)">
+                        <animateMotion dur="4s" repeatCount="indefinite" path="M50,187 L120,260 L220,240 L320,240 L400,187 L450,187"/>
+                    </circle>
+                    <circle r="2" fill="var(--accent)" opacity="0.5" filter="url(#glow)">
+                        <animateMotion dur="4.5s" repeatCount="indefinite" path="M50,187 L120,187 L220,240 L320,240 L400,187 L450,187"/>
+                    </circle>
                 </svg>
             </div>
         </section>
@@ -400,10 +406,10 @@
                     <circle cx="200" cy="200" r="40" fill="none" stroke="var(--accent)" stroke-width="1" />
                     <line x1="200" y1="60" x2="200" y2="340" stroke="var(--accent-dim)" stroke-width="0.3" />
                     <line x1="60" y1="200" x2="340" y2="200" stroke="var(--accent-dim)" stroke-width="0.3" />
-                    <circle cx="200" cy="80" r="4" fill="var(--accent)" style="animation: pulse 3s infinite;" />
-                    <circle cx="320" cy="200" r="4" fill="var(--accent)" style="animation: pulse 3s 1s infinite;" />
-                    <circle cx="200" cy="320" r="4" fill="var(--accent)" style="animation: pulse 3s 2s infinite;" />
-                    <circle cx="80" cy="200" r="4" fill="var(--accent)" style="animation: pulse 3s 0.5s infinite;" />
+                    <circle cx="200" cy="80" r="4" fill="var(--accent)" style="animation:pulse 3s infinite;" />
+                    <circle cx="320" cy="200" r="4" fill="var(--accent)" style="animation:pulse 3s 1s infinite;" />
+                    <circle cx="200" cy="320" r="4" fill="var(--accent)" style="animation:pulse 3s 2s infinite;" />
+                    <circle cx="80" cy="200" r="4" fill="var(--accent)" style="animation:pulse 3s 0.5s infinite;" />
                     <rect x="185" y="185" width="30" height="30" fill="var(--bg)" stroke="var(--accent)" rx="2" />
                     <path d="M195,205 L200,210 L210,195" fill="none" stroke="var(--accent)" stroke-width="2" />
                 </svg>
@@ -411,7 +417,7 @@
             <div class="glass-blueprint" data-num="04">
                 <div class="section-tag">
                     <img src="Capital_One_logo.svg" class="company-logo" alt="Capital One">
-                    <span style="font-family: var(--mono); font-size: 0.7rem; color: var(--accent);">CYBER // RISK_VISIBILITY</span>
+                    <span style="font-family:var(--mono);font-size:0.7rem;color:var(--accent);">CYBER // RISK_VISIBILITY</span>
                 </div>
                 <h2>Cyber Risk & Security</h2>
                 <p>Building enterprise-wide visibility into security posture across cloud infrastructure. Turning raw telemetry into actionable risk intelligence.</p>
@@ -427,15 +433,66 @@
         <section id="narac">
             <div class="visual-box">
                 <svg class="anim-svg" viewBox="0 0 400 400">
-                    <circle cx="200" cy="320" r="50" fill="none" stroke="var(--accent)" stroke-width="1" style="animation: pulse 3s infinite;" />
-                    <path d="M190,320 L210,320 L205,250 L195,250 Z" fill="var(--accent)" opacity="0.6" />
-                    <ellipse cx="200" cy="240" rx="60" ry="30" fill="var(--accent)" opacity="0.4" style="animation: pulse 4s infinite;" />
+                    <defs>
+                        <radialGradient id="plume1" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.4"/>
+                            <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
+                        </radialGradient>
+                        <radialGradient id="plume2" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" stop-color="#ff4444" stop-opacity="0.3"/>
+                            <stop offset="100%" stop-color="#ff4444" stop-opacity="0"/>
+                        </radialGradient>
+                        <filter id="blur-plume"><feGaussianBlur stdDeviation="8"/></filter>
+                        <filter id="blur-sm"><feGaussianBlur stdDeviation="3"/></filter>
+                    </defs>
+                    <!-- Grid overlay -->
+                    <g stroke="var(--accent)" stroke-width="0.15" opacity="0.2">
+                        <line x1="0" y1="80" x2="400" y2="80"/><line x1="0" y1="160" x2="400" y2="160"/>
+                        <line x1="0" y1="240" x2="400" y2="240"/><line x1="0" y1="320" x2="400" y2="320"/>
+                        <line x1="80" y1="0" x2="80" y2="400"/><line x1="160" y1="0" x2="160" y2="400"/>
+                        <line x1="240" y1="0" x2="240" y2="400"/><line x1="320" y1="0" x2="320" y2="400"/>
+                    </g>
+                    <!-- Dispersion plume (drifting ellipses) -->
+                    <ellipse cx="200" cy="200" rx="20" ry="20" fill="url(#plume2)" filter="url(#blur-plume)">
+                        <animate attributeName="rx" values="5;120;140" dur="5s" repeatCount="indefinite"/>
+                        <animate attributeName="ry" values="5;80;100" dur="5s" repeatCount="indefinite"/>
+                        <animate attributeName="cx" values="200;220;240" dur="5s" repeatCount="indefinite"/>
+                        <animate attributeName="cy" values="280;220;180" dur="5s" repeatCount="indefinite"/>
+                        <animate attributeName="opacity" values="0.8;0.4;0" dur="5s" repeatCount="indefinite"/>
+                    </ellipse>
+                    <ellipse cx="200" cy="200" rx="20" ry="20" fill="url(#plume1)" filter="url(#blur-plume)">
+                        <animate attributeName="rx" values="3;90;130" dur="5s" repeatCount="indefinite"/>
+                        <animate attributeName="ry" values="3;60;90" dur="5s" repeatCount="indefinite"/>
+                        <animate attributeName="cx" values="200;215;230" dur="5s" repeatCount="indefinite"/>
+                        <animate attributeName="cy" values="280;230;200" dur="5s" repeatCount="indefinite"/>
+                        <animate attributeName="opacity" values="1;0.5;0" dur="5s" repeatCount="indefinite"/>
+                    </ellipse>
+                    <!-- Shockwave rings -->
+                    <circle cx="200" cy="280" r="5" fill="none" stroke="var(--accent)" stroke-width="1.5" opacity="0.8">
+                        <animate attributeName="r" values="5;180" dur="3s" repeatCount="indefinite"/>
+                        <animate attributeName="opacity" values="0.8;0" dur="3s" repeatCount="indefinite"/>
+                    </circle>
+                    <circle cx="200" cy="280" r="5" fill="none" stroke="#ff4444" stroke-width="1" opacity="0.5">
+                        <animate attributeName="r" values="5;120" dur="3s" begin="0.5s" repeatCount="indefinite"/>
+                        <animate attributeName="opacity" values="0.5;0" dur="3s" begin="0.5s" repeatCount="indefinite"/>
+                    </circle>
+                    <!-- Detonation flash -->
+                    <circle cx="200" cy="280" r="8" fill="var(--accent)" filter="url(#blur-sm)">
+                        <animate attributeName="r" values="8;15;4" dur="5s" repeatCount="indefinite"/>
+                        <animate attributeName="opacity" values="1;0.6;1" dur="5s" repeatCount="indefinite"/>
+                    </circle>
+                    <!-- Contour labels -->
+                    <g font-family="var(--mono)" font-size="7" fill="var(--accent)" opacity="0.5">
+                        <text x="300" y="175">50 rem</text>
+                        <text x="270" y="220">100 rem</text>
+                        <text x="240" y="260">500 rem</text>
+                    </g>
                 </svg>
             </div>
             <div class="glass-blueprint" data-num="05">
-                 <div class="section-tag">
+                <div class="section-tag">
                     <img src="LLNL-logo.png" class="company-logo" alt="LLNL">
-                    <span style="font-family: var(--mono); font-size: 0.7rem; color: var(--accent);">NARAC // DEFENSE</span>
+                    <span style="font-family:var(--mono);font-size:0.7rem;color:var(--accent);">NARAC // DEFENSE</span>
                 </div>
                 <h2>Nuclear Modeling</h2>
                 <p>Supporting national security through atmospheric hazard dispersion modeling for first responders.</p>
@@ -448,23 +505,91 @@
 
         <!-- 6. AUTONOMY -->
         <section id="autonomy">
-             <div class="glass-blueprint" data-num="06">
+            <div class="glass-blueprint" data-num="06">
                 <div class="section-tag">
-                    <span style="font-family: var(--mono); font-size: 0.7rem; color: var(--accent);">MIL_LAB // KINETIC_RESEARCH</span>
+                    <span style="font-family:var(--mono);font-size:0.7rem;color:var(--accent);">MIL_LAB // KINETIC_RESEARCH</span>
                 </div>
-                <h2>Kinetic Logic</h2>
-                <p>Researching the limits of high-speed autonomy in racing and deep-sea environments.</p>
+                <h2>Autonomous Systems</h2>
+                <p>Building autonomous planning and control systems for high-speed robotics in extreme environments.</p>
                 <ul class="details-list">
-                    <li>Autonomous IndyCar Pathing Software</li>
+                    <li>Autonomous IndyCar Path Planning & Control</li>
                     <li>Submarine Sonar Fusion & Navigation</li>
+                    <li>Real-Time Robotic Decision Systems</li>
                 </ul>
             </div>
             <div class="visual-box">
                 <svg class="anim-svg" viewBox="0 0 400 400">
-                    <g class="scene scene-car">
-                        <path d="M100,200 A100,60 0 1,0 300,200 A100,60 0 1,0 100,200" fill="none" stroke="var(--accent-dim)" stroke-width="40" />
-                        <rect x="-10" y="-5" width="20" height="10" fill="var(--accent)" rx="2" style="offset-path: path('M100,200 A100,60 0 1,0 300,200 A100,60 0 1,0 100,200'); animation: race 4s linear infinite;" />
+                    <defs>
+                        <filter id="glow-a"><feGaussianBlur stdDeviation="2" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                        <radialGradient id="sonar-g" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.3"/>
+                            <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
+                        </radialGradient>
+                    </defs>
+
+                    <!-- Top half: Autonomous path planning -->
+                    <!-- Grid -->
+                    <g stroke="var(--accent)" stroke-width="0.15" opacity="0.15">
+                        <line x1="20" y1="20" x2="380" y2="20"/><line x1="20" y1="60" x2="380" y2="60"/>
+                        <line x1="20" y1="100" x2="380" y2="100"/><line x1="20" y1="140" x2="380" y2="140"/>
+                        <line x1="20" y1="180" x2="380" y2="180"/>
+                        <line x1="20" y1="20" x2="20" y2="180"/><line x1="92" y1="20" x2="92" y2="180"/>
+                        <line x1="164" y1="20" x2="164" y2="180"/><line x1="236" y1="20" x2="236" y2="180"/>
+                        <line x1="308" y1="20" x2="308" y2="180"/><line x1="380" y1="20" x2="380" y2="180"/>
                     </g>
+                    <!-- Obstacles -->
+                    <rect x="100" y="50" width="50" height="40" fill="rgba(255,60,60,0.15)" stroke="#ff4444" stroke-width="0.5" rx="2"/>
+                    <rect x="220" y="90" width="60" height="50" fill="rgba(255,60,60,0.15)" stroke="#ff4444" stroke-width="0.5" rx="2"/>
+                    <rect x="300" y="30" width="40" height="60" fill="rgba(255,60,60,0.15)" stroke="#ff4444" stroke-width="0.5" rx="2"/>
+                    <!-- Planned path -->
+                    <path d="M40,160 L80,120 L90,50 L170,40 L210,100 L210,150 L290,130 L290,100 L350,100 L370,50" fill="none" stroke="var(--accent)" stroke-width="1" stroke-dasharray="4 3" opacity="0.5"/>
+                    <!-- Waypoints -->
+                    <g fill="var(--accent)" opacity="0.6">
+                        <circle cx="80" cy="120" r="3"/><circle cx="90" cy="50" r="3"/>
+                        <circle cx="170" cy="40" r="3"/><circle cx="210" cy="100" r="3"/>
+                        <circle cx="210" cy="150" r="3"/><circle cx="290" cy="130" r="3"/>
+                        <circle cx="290" cy="100" r="3"/><circle cx="350" cy="100" r="3"/>
+                    </g>
+                    <!-- Robot with sensor cone -->
+                    <g filter="url(#glow-a)">
+                        <animateMotion dur="8s" repeatCount="indefinite" rotate="auto" path="M40,160 L80,120 L90,50 L170,40 L210,100 L210,150 L290,130 L290,100 L350,100 L370,50"/>
+                        <polygon points="-12,-8 15,0 -12,8" fill="var(--accent)" opacity="0.08"/>
+                        <rect x="-5" y="-5" width="10" height="10" fill="var(--accent)" rx="2"/>
+                    </g>
+                    <!-- Labels -->
+                    <text x="30" y="175" font-family="var(--mono)" font-size="6" fill="var(--accent)" opacity="0.4">START</text>
+                    <text x="355" y="45" font-family="var(--mono)" font-size="6" fill="var(--accent)" opacity="0.4">GOAL</text>
+                    <circle cx="370" cy="50" r="6" fill="none" stroke="var(--accent)" stroke-width="0.8" opacity="0.5"/>
+
+                    <!-- Divider -->
+                    <line x1="20" y1="205" x2="380" y2="205" stroke="var(--accent)" stroke-width="0.3" opacity="0.3"/>
+                    <text x="170" y="200" font-family="var(--mono)" font-size="6" fill="var(--accent)" opacity="0.3">SUBSURFACE</text>
+
+                    <!-- Bottom half: Sonar sweep -->
+                    <circle cx="200" cy="320" r="80" fill="none" stroke="var(--accent)" stroke-width="0.3" opacity="0.3"/>
+                    <circle cx="200" cy="320" r="55" fill="none" stroke="var(--accent)" stroke-width="0.3" opacity="0.2"/>
+                    <circle cx="200" cy="320" r="30" fill="none" stroke="var(--accent)" stroke-width="0.3" opacity="0.15"/>
+                    <!-- Sonar sweep line -->
+                    <line x1="200" y1="320" x2="200" y2="240" stroke="var(--accent)" stroke-width="1.5" opacity="0.7">
+                        <animateTransform attributeName="transform" type="rotate" from="0 200 320" to="360 200 320" dur="4s" repeatCount="indefinite"/>
+                    </line>
+                    <!-- Sonar trail -->
+                    <path d="M200,320 L200,240 A80,80 0 0,0 145,270 Z" fill="url(#sonar-g)">
+                        <animateTransform attributeName="transform" type="rotate" from="0 200 320" to="360 200 320" dur="4s" repeatCount="indefinite"/>
+                    </path>
+                    <!-- Sonar pings (detected objects) -->
+                    <circle cx="230" cy="290" r="2" fill="var(--accent)" opacity="0">
+                        <animate attributeName="opacity" values="0;1;0" dur="4s" repeatCount="indefinite" begin="0.3s"/>
+                    </circle>
+                    <circle cx="175" cy="350" r="2" fill="var(--accent)" opacity="0">
+                        <animate attributeName="opacity" values="0;1;0" dur="4s" repeatCount="indefinite" begin="1.8s"/>
+                    </circle>
+                    <circle cx="250" cy="340" r="2" fill="#ff4444" opacity="0">
+                        <animate attributeName="opacity" values="0;1;0" dur="4s" repeatCount="indefinite" begin="1s"/>
+                    </circle>
+                    <!-- Sub icon -->
+                    <ellipse cx="200" cy="320" rx="8" ry="3" fill="var(--accent)" opacity="0.6"/>
+                    <line x1="200" y1="317" x2="200" y2="312" stroke="var(--accent)" stroke-width="1"/>
                 </svg>
             </div>
         </section>
@@ -475,80 +600,453 @@
         [ ESTABLISHED ACCESS 2018 ] // ARCHITECTED BY DANIEL WILLIAMSON
     </footer>
 
+    <!-- TERMINAL OVERLAY -->
+    <div id="terminal-overlay">
+        <div id="terminal-output"></div>
+        <div id="terminal-input-line">
+            <span>dw@arch ~$</span>
+            <input id="terminal-input" type="text" autofocus spellcheck="false" autocomplete="off">
+        </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
     <script>
-        // --- 1. BOOT SEQUENCE ---
-        const bootLog = document.getElementById('boot-log');
-        const logs = [
-            "DW_CORE_OS V.4.0.2 INITIALIZING...",
-            "AUTHENTICATING IDENTITY: D_WILLIAMSON",
-            "SATELLITE_LINK: AMAZON_LEO... ONLINE",
-            "SECURITY_POSTURE... VALIDATED",
-            "LOADING ARCHITECTURAL_MANIFEST...",
-            "ACCESS GRANTED."
-        ];
-        let l = 0;
-        const interval = setInterval(() => {
-            if(l < logs.length) {
-                const d = document.createElement('div');
-                d.textContent = `> ${logs[l]}`;
-                bootLog.appendChild(d);
-                l++;
-            } else {
-                clearInterval(interval);
-                setTimeout(() => {
-                    document.getElementById('boot-screen').style.transform = 'translateY(-100%)';
-                    document.getElementById('boot-screen').style.transition = 'transform 1.2s cubic-bezier(1,0,0,1)';
-                }, 800);
+    /* ===== BOOT SEQUENCE ===== */
+    const bootLog = document.getElementById('boot-log');
+    const logs = [
+        "DW_CORE_OS V.4.0.2 INITIALIZING...",
+        "AUTHENTICATING IDENTITY: D_WILLIAMSON",
+        "SATELLITE_LINK: AMAZON_LEO... ONLINE",
+        "SECURITY_POSTURE... VALIDATED",
+        "LOADING ARCHITECTURAL_MANIFEST...",
+        "ACCESS GRANTED."
+    ];
+    let soundEnabled = false;
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playBeep(freq, dur) {
+        if (!soundEnabled) return;
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        o.connect(g); g.connect(audioCtx.destination);
+        o.frequency.value = freq; o.type = 'sine';
+        g.gain.setValueAtTime(0.03, audioCtx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+        o.start(); o.stop(audioCtx.currentTime + dur);
+    }
+    function playClick() { playBeep(1200, 0.05); }
+    function playHover() { playBeep(800, 0.03); }
+
+    let bl = 0;
+    const bootInterval = setInterval(() => {
+        if (bl < logs.length) {
+            const d = document.createElement('div');
+            d.textContent = '> ' + logs[bl];
+            bootLog.appendChild(d);
+            playBeep(400 + bl * 100, 0.08);
+            bl++;
+        } else {
+            clearInterval(bootInterval);
+            setTimeout(() => {
+                const bs = document.getElementById('boot-screen');
+                bs.style.transition = 'transform 1.2s cubic-bezier(1,0,0,1)';
+                bs.style.transform = 'translateY(-100%)';
+                setTimeout(() => { bs.style.display = 'none'; }, 1300);
+            }, 800);
+        }
+    }, 150);
+
+    function toggleSound(e) {
+        e.preventDefault();
+        soundEnabled = !soundEnabled;
+        if (soundEnabled) audioCtx.resume();
+        document.getElementById('sound-toggle').textContent = soundEnabled ? '♪ SFX: ON' : '♪ SFX: OFF';
+        playClick();
+    }
+
+    /* ===== THREE.JS BACKGROUND WITH MOUSE-REACTIVE DISTORTION ===== */
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, innerWidth / innerHeight, 0.1, 2000);
+    const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('three-canvas'), antialias: true, alpha: true });
+    renderer.setSize(innerWidth, innerHeight);
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+
+    const starCount = 6000;
+    const starGeom = new THREE.BufferGeometry();
+    const starPos = new Float32Array(starCount * 3);
+    const starSizes = new Float32Array(starCount);
+    for (let i = 0; i < starCount; i++) {
+        starPos[i*3] = THREE.MathUtils.randFloatSpread(2000);
+        starPos[i*3+1] = THREE.MathUtils.randFloatSpread(2000);
+        starPos[i*3+2] = THREE.MathUtils.randFloatSpread(2000);
+        starSizes[i] = Math.random() * 2 + 0.5;
+    }
+    starGeom.setAttribute('position', new THREE.Float32BufferAttribute(starPos, 3));
+    starGeom.setAttribute('size', new THREE.Float32BufferAttribute(starSizes, 1));
+
+    const starMat = new THREE.ShaderMaterial({
+        uniforms: {
+            uTime: { value: 0 },
+            uMouse: { value: new THREE.Vector2(0, 0) },
+            uColor: { value: new THREE.Color(0x00f2ff) }
+        },
+        vertexShader: `
+            attribute float size;
+            uniform float uTime;
+            uniform vec2 uMouse;
+            varying float vAlpha;
+            void main() {
+                vec3 pos = position;
+                float dist = length(pos.xy - uMouse * 500.0);
+                pos.z += sin(uTime * 0.5 + pos.x * 0.01) * 20.0;
+                pos.xy += normalize(pos.xy - uMouse * 500.0) * max(0.0, 80.0 - dist) * 0.3;
+                vAlpha = 0.3 + 0.4 * sin(uTime + pos.x * 0.1);
+                vec4 mv = modelViewMatrix * vec4(pos, 1.0);
+                gl_PointSize = size * (300.0 / -mv.z);
+                gl_Position = projectionMatrix * mv;
             }
-        }, 150);
+        `,
+        fragmentShader: `
+            uniform vec3 uColor;
+            varying float vAlpha;
+            void main() {
+                float d = length(gl_PointCoord - 0.5);
+                if (d > 0.5) discard;
+                gl_FragColor = vec4(uColor, vAlpha * (1.0 - d * 2.0));
+            }
+        `,
+        transparent: true, depthWrite: false, blending: THREE.AdditiveBlending
+    });
+    const stars = new THREE.Points(starGeom, starMat);
+    scene.add(stars);
+    camera.position.z = 500;
 
-        // --- 2. THREE.JS BACKGROUND ---
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('three-canvas'), antialias: true, alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        
-        const starGeom = new THREE.BufferGeometry();
-        const starVerts = [];
-        for (let i = 0; i < 6000; i++) {
-            starVerts.push(THREE.MathUtils.randFloatSpread(2000), THREE.MathUtils.randFloatSpread(2000), THREE.MathUtils.randFloatSpread(2000));
+    let mouseX = 0, mouseY = 0;
+
+    /* ===== KUIPER GLOBE ===== */
+    let globeScene, globeCamera, globeRenderer;
+    const kuiperVisual = document.getElementById('kuiper-visual');
+    if (kuiperVisual) {
+        const gc = document.getElementById('kuiper-globe');
+        globeScene = new THREE.Scene();
+        globeCamera = new THREE.PerspectiveCamera(45, gc.clientWidth / gc.clientHeight, 0.1, 100);
+        globeRenderer = new THREE.WebGLRenderer({ canvas: gc, antialias: true, alpha: true });
+        globeRenderer.setSize(gc.clientWidth, gc.clientHeight);
+        globeRenderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+
+        // Wireframe globe
+        const globeGeo = new THREE.SphereGeometry(2, 32, 32);
+        const globeMat = new THREE.MeshBasicMaterial({ color: 0x00f2ff, wireframe: true, transparent: true, opacity: 0.15 });
+        const globe = new THREE.Mesh(globeGeo, globeMat);
+        globeScene.add(globe);
+
+        // Orbital rings
+        for (let i = 0; i < 5; i++) {
+            const ringGeo = new THREE.RingGeometry(2.8 + i * 0.3, 2.82 + i * 0.3, 64);
+            const ringMat = new THREE.MeshBasicMaterial({ color: 0x00f2ff, transparent: true, opacity: 0.1, side: THREE.DoubleSide });
+            const ring = new THREE.Mesh(ringGeo, ringMat);
+            ring.rotation.x = Math.PI / 2 + (i - 2) * 0.3;
+            ring.rotation.z = i * 0.4;
+            globeScene.add(ring);
         }
-        starGeom.setAttribute('position', new THREE.Float32BufferAttribute(starVerts, 3));
-        const starMat = new THREE.PointsMaterial({ color: 0x00f2ff, size: 1.5, transparent: true, opacity: 0.4 });
-        const stars = new THREE.Points(starGeom, starMat);
-        scene.add(stars);
 
-        camera.position.z = 500;
-        function animate() {
-            requestAnimationFrame(animate);
-            stars.rotation.y += 0.0003;
-            renderer.render(scene, camera);
+        // Satellites (small dots on orbits)
+        const satGeo = new THREE.SphereGeometry(0.06, 8, 8);
+        const satMat = new THREE.MeshBasicMaterial({ color: 0x00f2ff });
+        const sats = [];
+        for (let i = 0; i < 12; i++) {
+            const sat = new THREE.Mesh(satGeo, satMat);
+            const orbitR = 2.8 + (i % 5) * 0.3;
+            sat.userData = { orbit: orbitR, speed: 0.3 + Math.random() * 0.5, angle: Math.random() * Math.PI * 2, tiltX: Math.PI/2 + ((i%5)-2)*0.3, tiltZ: (i%5)*0.4 };
+            globeScene.add(sat);
+            sats.push(sat);
         }
-        animate();
 
-        // --- 3. UI LOGIC ---
-        const cursor = document.getElementById('cursor');
-        document.addEventListener('mousemove', (e) => {
-            cursor.style.left = e.clientX - 15 + 'px';
-            cursor.style.top = e.clientY - 15 + 'px';
-            const x = (e.clientX / window.innerWidth - 0.5) * 40;
-            const y = (e.clientY / window.innerHeight - 0.5) * 40;
-            camera.position.x = x; camera.position.y = -y;
-        });
+        globeCamera.position.z = 7;
 
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    document.querySelectorAll('.nav-dot').forEach(dot => dot.classList.remove('active'));
-                    const activeDot = document.querySelector(`.nav-dot[href="#${entry.target.id}"]`);
-                    if (activeDot) activeDot.classList.add('active');
-                }
+        function animateGlobe(t) {
+            globe.rotation.y = t * 0.0002;
+            sats.forEach(s => {
+                s.userData.angle += s.userData.speed * 0.01;
+                const a = s.userData.angle;
+                const r = s.userData.orbit;
+                s.position.set(Math.cos(a) * r, 0, Math.sin(a) * r);
+                // Apply same tilt as the ring
+                const euler = new THREE.Euler(s.userData.tiltX, 0, s.userData.tiltZ);
+                s.position.applyEuler(euler);
             });
-        }, { threshold: 0.5 });
-        document.querySelectorAll('section, .hero').forEach(s => observer.observe(s));
+            globeRenderer.render(globeScene, globeCamera);
+        }
+    }
     </script>
 
-    <style> @keyframes race { from { offset-distance: 0%; } to { offset-distance: 100%; } } </style>
+    <script>
+    /* ===== CURSOR: MAGNETIC, MORPH, TRAIL ===== */
+    const cursor = document.getElementById('cursor');
+    const trailCount = 8;
+    const trails = [];
+    for (let i = 0; i < trailCount; i++) {
+        const t = document.createElement('div');
+        t.className = 'cursor-trail';
+        document.body.appendChild(t);
+        trails.push({ el: t, x: 0, y: 0 });
+    }
+
+    let curX = 0, curY = 0, targetX = 0, targetY = 0;
+
+    document.addEventListener('mousemove', (e) => {
+        targetX = e.clientX; targetY = e.clientY;
+        mouseX = (e.clientX / innerWidth - 0.5) * 2;
+        mouseY = (e.clientY / innerHeight - 0.5) * 2;
+
+        // Magnetic effect on nav dots
+        document.querySelectorAll('.nav-dot').forEach(dot => {
+            const rect = dot.getBoundingClientRect();
+            const dx = e.clientX - (rect.left + rect.width / 2);
+            const dy = e.clientY - (rect.top + rect.height / 2);
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < 80) {
+                const pull = (80 - dist) / 80 * 8;
+                dot.style.transform = 'translate(' + (dx/dist*pull) + 'px,' + (dy/dist*pull) + 'px) scale(' + (1 + (80-dist)/80*0.4) + ')';
+            } else {
+                dot.style.transform = '';
+            }
+        });
+    });
+
+    // Cursor morph on hover
+    document.addEventListener('mouseover', (e) => {
+        const t = e.target;
+        if (t.matches('a, button, .nav-dot, [onclick]')) {
+            cursor.classList.add('hover-link');
+            cursor.classList.remove('hover-text');
+            playHover();
+        } else if (t.matches('p, h1, h2, li, span')) {
+            cursor.classList.add('hover-text');
+            cursor.classList.remove('hover-link');
+        } else {
+            cursor.classList.remove('hover-link', 'hover-text');
+        }
+    });
+
+    // Click sound
+    document.addEventListener('click', () => playClick());
+
+    /* ===== GSAP SCROLL ANIMATIONS ===== */
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Hero parallax
+    gsap.to('.hero h1', {
+        scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true },
+        y: 200, opacity: 0.2, scale: 0.8
+    });
+    gsap.to('.hero p', {
+        scrollTrigger: { trigger: '.hero', start: 'top top', end: '50% top', scrub: true },
+        y: 100, opacity: 0
+    });
+
+    // Each section: glass card slides up, visual box scales in, list items stagger
+    document.querySelectorAll('section').forEach(sec => {
+        const card = sec.querySelector('.glass-blueprint');
+        const visual = sec.querySelector('.visual-box');
+        const items = sec.querySelectorAll('.details-list li');
+
+        if (card) {
+            gsap.to(card, {
+                scrollTrigger: { trigger: sec, start: 'top 75%', end: 'top 25%', scrub: 1 },
+                opacity: 1, y: 0, ease: 'power2.out'
+            });
+        }
+        if (visual) {
+            gsap.to(visual, {
+                scrollTrigger: { trigger: sec, start: 'top 80%', end: 'top 30%', scrub: 1 },
+                opacity: 1, scale: 1, ease: 'power2.out'
+            });
+        }
+        if (items.length) {
+            gsap.to(items, {
+                scrollTrigger: { trigger: sec, start: 'top 60%', toggleActions: 'play none none reverse' },
+                opacity: 1, x: 0, stagger: 0.12, duration: 0.6, ease: 'power2.out'
+            });
+        }
+    });
+
+    /* ===== ANIMATED COUNTERS ===== */
+
+    // HR bar chart grow on scroll
+    ScrollTrigger.create({
+        trigger: '#people',
+        start: 'top 40%',
+        once: true,
+        onEnter: () => {
+            document.querySelectorAll('.hr-bar').forEach((bar, i) => {
+                bar.setAttribute('height', '0');
+                gsap.to(bar, { attr: { height: bar.dataset.h }, duration: 1.2, delay: 0.3 + i * 0.15, ease: 'power2.out' });
+            });
+        }
+    });
+
+    document.querySelectorAll('.stat-num[data-count]').forEach(el => {
+        const target = parseInt(el.dataset.count);
+        const suffix = el.dataset.suffix || '';
+        ScrollTrigger.create({
+            trigger: el,
+            start: 'top 80%',
+            once: true,
+            onEnter: () => {
+                gsap.to({ v: 0 }, {
+                    v: target, duration: 2, ease: 'power2.out',
+                    onUpdate: function() { el.textContent = Math.round(this.targets()[0].v).toLocaleString() + suffix; }
+                });
+            }
+        });
+    });
+
+    /* ===== LOCAL TIME ===== */
+    function updateTime() {
+        const now = new Date();
+        const t = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: 'America/New_York', hour12: false });
+        const el = document.getElementById('local-time');
+        if (el) el.textContent = 'ET ' + t;
+    }
+    updateTime();
+    setInterval(updateTime, 30000);
+
+    /* ===== MAIN ANIMATION LOOP ===== */
+    const clock = new THREE.Clock();
+    function mainLoop() {
+        requestAnimationFrame(mainLoop);
+        const t = clock.getElapsedTime();
+
+        // Smooth cursor
+        curX += (targetX - curX) * 0.45;
+        curY += (targetY - curY) * 0.45;
+        cursor.style.transform = 'translate(' + (curX - 15) + 'px,' + (curY - 15) + 'px)';
+
+        // Trails
+        let prevX = curX, prevY = curY;
+        trails.forEach((tr, i) => {
+            tr.x += (prevX - tr.x) * (0.3 - i * 0.025);
+            tr.y += (prevY - tr.y) * (0.3 - i * 0.025);
+            tr.el.style.transform = 'translate(' + (tr.x - 3) + 'px,' + (tr.y - 3) + 'px)';
+            tr.el.style.opacity = (0.3 - i * 0.035);
+            prevX = tr.x; prevY = tr.y;
+        });
+
+        // Stars
+        starMat.uniforms.uTime.value = t;
+        starMat.uniforms.uMouse.value.set(mouseX, mouseY);
+        stars.rotation.y += 0.0002;
+        camera.position.x += (mouseX * 30 - camera.position.x) * 0.05;
+        camera.position.y += (-mouseY * 30 - camera.position.y) * 0.05;
+        renderer.render(scene, camera);
+
+        // Globe
+        if (globeRenderer) animateGlobe(t * 1000);
+    }
+    mainLoop();
+
+    // Resize
+    window.addEventListener('resize', () => {
+        camera.aspect = innerWidth / innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(innerWidth, innerHeight);
+        if (globeRenderer) {
+            const gc = document.getElementById('kuiper-globe');
+            globeCamera.aspect = gc.clientWidth / gc.clientHeight;
+            globeCamera.updateProjectionMatrix();
+            globeRenderer.setSize(gc.clientWidth, gc.clientHeight);
+        }
+    });
+
+    // Nav observer
+    const navObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                document.querySelectorAll('.nav-dot').forEach(d => d.classList.remove('active'));
+                const dot = document.querySelector('.nav-dot[href="#' + entry.target.id + '"]');
+                if (dot) dot.classList.add('active');
+            }
+        });
+    }, { threshold: 0.4 });
+    document.querySelectorAll('section, .hero').forEach(s => navObserver.observe(s));
+    </script>
+
+    <script>
+    /* ===== TERMINAL EASTER EGG ===== */
+    const termOverlay = document.getElementById('terminal-overlay');
+    const termOutput = document.getElementById('terminal-output');
+    const termInput = document.getElementById('terminal-input');
+
+    const termFiles = {
+        'kuiper.md': '# Project Kuiper — IAM & Compliance Architect\nDesigning the secure build-system identity stack for Amazon\'s LEO satellite constellation.\n- Automated Global Export Control License Management\n- ITAR/EAR Compliant ABAC & IDP Ownership\n- CUI-Compliant PKI Infrastructure\n- Device Identity & Security Posture Systems',
+        'people.md': '# People Tech — HR Automation\nScaling Amazon\'s fulfillment workforce.\n- Regional Demand & Headcount Modeling\n- Automated Google/FB Marketing Engine\n- Global Workforce Optimization Rails',
+        'payments.md': '# The Payment Exchange — Capital One\nEngineering the move of capital across SWIFT and FedNow.\n- RTP & FedNow Integration Architecture\n- "Bad Bank" API: Sanctions & Fraud Mitigation\n- High-Throughput Liquidity Rail Engineering',
+        'cyber.md': '# Cyber Risk & Security — Capital One\nEnterprise-wide security posture visibility.\n- AWS Security Log Analysis & Monitoring\n- Enterprise Cyber Risk Dashboarding\n- Tech Risk & Compliance Posture Visualization',
+        'narac.md': '# NARAC — Nuclear Modeling\nAtmospheric hazard dispersion modeling for first responders.\n- Nuclear Defense Modeling Tools\n- First-Response Real-Time Hazard Tracking',
+        'autonomy.md': '# Autonomous Systems\nBuilding autonomous planning and control systems for high-speed robotics.\n- Autonomous IndyCar Path Planning & Control\n- Submarine Sonar Fusion & Navigation\n- Real-Time Robotic Decision Systems',
+        'skills.txt': 'IAM | PKI | ABAC | ITAR/EAR Compliance | Export Control\nReal-Time Payments | SWIFT | FedNow | AWS Security\nThree.js | WebGL | Python | Java | TypeScript\nTerraform | CloudFormation | Kubernetes | Docker',
+        'contact.txt': 'Daniel Williamson\nInfrastructure & Security Architect\nGitHub: ResonanceCache'
+    };
+
+    const termCommands = {
+        help: () => 'Available commands:\n  ls          — list files\n  cat <file>  — read a file\n  whoami      — identity\n  clear       — clear terminal\n  skills      — technical skills\n  exit        — close terminal\n  help        — this message',
+        ls: () => Object.keys(termFiles).map(f => '  ' + f).join('\n'),
+        whoami: () => 'daniel_williamson // infrastructure & security architect',
+        skills: () => termFiles['skills.txt'],
+        clear: () => { termOutput.textContent = ''; return ''; },
+        exit: () => { termOverlay.classList.remove('active'); return ''; },
+        cat: (args) => {
+            const file = args[0];
+            if (!file) return 'Usage: cat <filename>';
+            if (termFiles[file]) return termFiles[file];
+            return 'cat: ' + file + ': No such file';
+        }
+    };
+
+    function termPrint(text) {
+        if (text) termOutput.textContent += text + '\n';
+        termOutput.textContent += '\n';
+        termOutput.scrollTop = termOutput.scrollHeight;
+    }
+
+    function termExec(input) {
+        termOutput.textContent += 'dw@arch ~$ ' + input + '\n';
+        const parts = input.trim().split(/\s+/);
+        const cmd = parts[0];
+        const args = parts.slice(1);
+        if (!cmd) { termPrint(''); return; }
+        if (termCommands[cmd]) {
+            termPrint(termCommands[cmd](args));
+        } else {
+            termPrint('command not found: ' + cmd + '. Type "help" for available commands.');
+        }
+        playClick();
+    }
+
+    // Open terminal with backtick
+    document.addEventListener('keydown', (e) => {
+        if (e.key === '`' && !termOverlay.classList.contains('active')) {
+            e.preventDefault();
+            termOverlay.classList.add('active');
+            if (!termOutput.textContent) {
+                termPrint('DW_TERMINAL v1.0 — Type "help" for commands.\n');
+            }
+            setTimeout(() => termInput.focus(), 50);
+        } else if (e.key === 'Escape' && termOverlay.classList.contains('active')) {
+            termOverlay.classList.remove('active');
+        }
+    });
+
+    termInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            termExec(termInput.value);
+            termInput.value = '';
+        }
+    });
+    </script>
+
 </body>
 </html>
