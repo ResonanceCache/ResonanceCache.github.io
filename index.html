@@ -60,7 +60,7 @@
             position: fixed; width: 30px; height: 30px;
             border: 1px solid var(--accent); border-radius: 50%;
             pointer-events: none; z-index: 9999;
-            transition: width 0.3s, height 0.3s, border-radius 0.3s, border-color 0.3s, background 0.3s;
+            transition: width 0.3s, height 0.3s, border-radius 0.3s, border-color 0.3s, background 0.3s, opacity 0.8s;
             display: flex; align-items: center; justify-content: center;
             will-change: transform;
         }
@@ -188,16 +188,6 @@
         .stat-num { font-size: 1.8rem; color: var(--accent); font-weight: 700; }
         .stat-label { font-size: 0.6rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; }
 
-        /* SOUND TOGGLE */
-        #sound-toggle {
-            position: fixed; bottom: 2rem; left: 2rem; z-index: 200;
-            font-family: var(--mono); font-size: 0.7rem; color: var(--accent);
-            background: rgba(0,242,255,0.05); border: 1px solid rgba(0,242,255,0.2);
-            padding: 0.4rem 0.8rem; border-radius: 2px; text-decoration: none;
-            transition: 0.3s;
-        }
-        #sound-toggle:hover { background: rgba(0,242,255,0.15); }
-
         /* TERMINAL OVERLAY */
         #terminal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -235,7 +225,6 @@
 
     <canvas id="three-canvas"></canvas>
 
-    <a id="sound-toggle" href="#" onclick="toggleSound(event)">♪ SFX: OFF</a>
     <div class="terminal-hint">Press ` for terminal</div>
 
     <nav class="nav-container" data-magnetic>
@@ -268,7 +257,7 @@
                     <span style="font-family:var(--mono);font-size:0.7rem;color:var(--accent);">AMAZON_LEO // LEO</span>
                 </div>
                 <h2>Satellite Build Systems</h2>
-                <p style="font-weight:200;line-height:1.6;">Designing the secure build-system identity stack for Amazon's LEO satellite constellation. Managing ITAR/EAR compliance at scale.</p>
+                <p style="font-weight:200;line-height:1.6;">PKI and identity platform for a 10,000+ device fleet across satellite development and manufacturing. ITAR/EAR compliance automation.</p>
                 <ul class="details-list">
                     <li>Automated Global Export Control License Management</li>
                     <li>ITAR/EAR Compliant ABAC & IDP Ownership</li>
@@ -286,11 +275,11 @@
             <div class="visual-box">
                 <svg class="anim-svg" id="hr-chart" viewBox="0 0 400 400">
                     <g transform="translate(50, 350) scale(1, -1)">
-                        <rect class="hr-bar" x="0" y="0" width="40" height="0" fill="var(--accent-dim)" stroke="var(--accent)" data-h="150" />
+                        <rect class="hr-bar" x="0" y="0" width="40" height="0" fill="var(--accent-dim)" stroke="var(--accent)" data-h="220" />
                         <rect class="hr-bar" x="60" y="0" width="40" height="0" fill="var(--accent-dim)" stroke="var(--accent)" data-h="250" />
-                        <rect class="hr-bar" x="120" y="0" width="40" height="0" fill="var(--accent-dim)" stroke="var(--accent)" data-h="180" />
-                        <rect class="hr-bar" x="180" y="0" width="40" height="0" fill="var(--accent)" data-h="300" />
-                        <rect class="hr-bar" x="240" y="0" width="40" height="0" fill="var(--accent-dim)" stroke="var(--accent)" data-h="220" />
+                        <rect class="hr-bar" x="120" y="0" width="40" height="0" fill="var(--accent-dim)" stroke="var(--accent)" data-h="150" />
+                        <rect class="hr-bar" x="180" y="0" width="40" height="0" fill="var(--accent-dim)" stroke="var(--accent)" data-h="120" />
+                        <rect class="hr-bar" x="240" y="0" width="40" height="0" fill="var(--accent)" data-h="300" />
                     </g>
                 </svg>
             </div>
@@ -300,7 +289,7 @@
                     <span style="font-family:var(--mono);font-size:0.7rem;color:var(--accent);">PEOPLE_TECH // GLOBAL</span>
                 </div>
                 <h2>HR Automation</h2>
-                <p>Scaling Amazon's fulfillment workforce through automated headcount modeling and high-precision ad-spend engines.</p>
+                <p>Built the executive application managing >$500M/yr in ad spend. Scalable services tracking performance across ~10,000 sites globally.</p>
                 <ul class="details-list">
                     <li>Regional Demand & Headcount Modeling</li>
                     <li>Automated Google/FB Marketing Engine</li>
@@ -316,8 +305,8 @@
                     <img src="Capital_One_logo.svg" class="company-logo" alt="Capital One">
                     <span style="font-family:var(--mono);font-size:0.7rem;color:var(--accent);">EXCHANGE // REAL_TIME</span>
                 </div>
-                <h2>The Payment Exchange</h2>
-                <p>Engineering the move of capital across SWIFT and FedNow. Building the intelligence layer that blocks the "Bad Bank" in real-time.</p>
+                <h2>Real-Time Payments</h2>
+                <p>Microservices handling >10k TPS for 24/7 real-time payments. Automated risk ETL across 90+ metrics with ML-based anomaly detection.</p>
                 <ul class="details-list">
                     <li>RTP & FedNow Integration Architecture</li>
                     <li>"Bad Bank" API: Sanctions & Fraud Mitigation</li>
@@ -421,7 +410,7 @@
                     <span style="font-family:var(--mono);font-size:0.7rem;color:var(--accent);">CYBER // RISK_VISIBILITY</span>
                 </div>
                 <h2>Cyber Risk & Security</h2>
-                <p>Building enterprise-wide visibility into security posture across cloud infrastructure. Turning raw telemetry into actionable risk intelligence.</p>
+                <p>Analyzed 4TB/day of CloudTrail data for vulnerabilities. Automated ML-based risk reporting and anomaly detection.</p>
                 <ul class="details-list">
                     <li>AWS Security Log Analysis & Monitoring</li>
                     <li>Enterprise Cyber Risk Dashboarding</li>
@@ -496,7 +485,7 @@
                     <span style="font-family:var(--mono);font-size:0.7rem;color:var(--accent);">NARAC // DEFENSE</span>
                 </div>
                 <h2>Nuclear Modeling</h2>
-                <p>Supporting national security through atmospheric hazard dispersion modeling for first responders.</p>
+                <p>Reduced first-response data payloads by 97%, accelerating emergency modeling and analysis for nuclear events.</p>
                 <ul class="details-list">
                     <li>Nuclear Defense Modeling Tools</li>
                     <li>First-Response Real-Time Hazard Tracking</li>
@@ -508,10 +497,11 @@
         <section id="autonomy">
             <div class="glass-blueprint" data-num="06">
                 <div class="section-tag">
+                    <img src="mil-logo.svg" class="company-logo" alt="Machine Intelligence Lab">
                     <span style="font-family:var(--mono);font-size:0.7rem;color:var(--accent);">MIL_LAB // KINETIC_RESEARCH</span>
                 </div>
                 <h2>Autonomous Systems</h2>
-                <p>Building autonomous planning and control systems for high-speed robotics in extreme environments.</p>
+                <p>Path planning and control for autonomous racing vehicles and submarine navigation systems.</p>
                 <ul class="details-list">
                     <li>Autonomous IndyCar Path Planning & Control</li>
                     <li>Submarine Sonar Fusion & Navigation</li>
@@ -624,29 +614,12 @@
         "LOADING ARCHITECTURAL_MANIFEST...",
         "ACCESS GRANTED."
     ];
-    let soundEnabled = false;
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-    function playBeep(freq, dur) {
-        if (!soundEnabled) return;
-        const o = audioCtx.createOscillator();
-        const g = audioCtx.createGain();
-        o.connect(g); g.connect(audioCtx.destination);
-        o.frequency.value = freq; o.type = 'sine';
-        g.gain.setValueAtTime(0.03, audioCtx.currentTime);
-        g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
-        o.start(); o.stop(audioCtx.currentTime + dur);
-    }
-    function playClick() { playBeep(1200, 0.05); }
-    function playHover() { playBeep(800, 0.03); }
-
     let bl = 0;
     const bootInterval = setInterval(() => {
         if (bl < logs.length) {
             const d = document.createElement('div');
             d.textContent = '> ' + logs[bl];
             bootLog.appendChild(d);
-            playBeep(400 + bl * 100, 0.08);
             bl++;
         } else {
             clearInterval(bootInterval);
@@ -658,14 +631,6 @@
             }, 800);
         }
     }, 150);
-
-    function toggleSound(e) {
-        e.preventDefault();
-        soundEnabled = !soundEnabled;
-        if (soundEnabled) audioCtx.resume();
-        document.getElementById('sound-toggle').textContent = soundEnabled ? '♪ SFX: ON' : '♪ SFX: OFF';
-        playClick();
-    }
 
     /* ===== THREE.JS BACKGROUND WITH MOUSE-REACTIVE DISTORTION ===== */
     const scene = new THREE.Scene();
@@ -796,11 +761,18 @@
     }
 
     let curX = 0, curY = 0, targetX = 0, targetY = 0;
+    let cursorTimeout;
+    function showCursor() {
+        cursor.style.opacity = '1';
+        clearTimeout(cursorTimeout);
+        cursorTimeout = setTimeout(() => { cursor.style.opacity = '0'; }, 3000);
+    }
 
     document.addEventListener('mousemove', (e) => {
         targetX = e.clientX; targetY = e.clientY;
         mouseX = (e.clientX / innerWidth - 0.5) * 2;
         mouseY = (e.clientY / innerHeight - 0.5) * 2;
+        showCursor();
 
         // Magnetic effect on nav dots
         document.querySelectorAll('.nav-dot').forEach(dot => {
@@ -823,7 +795,6 @@
         if (t.matches('a, button, .nav-dot, [onclick]')) {
             cursor.classList.add('hover-link');
             cursor.classList.remove('hover-text');
-            playHover();
         } else if (t.matches('p, h1, h2, li, span')) {
             cursor.classList.add('hover-text');
             cursor.classList.remove('hover-link');
@@ -832,8 +803,8 @@
         }
     });
 
-    // Click sound
-    document.addEventListener('click', () => playClick());
+    // Click sound + show cursor
+    document.addEventListener('click', () => { showCursor(); });
 
     /* ===== GSAP SCROLL ANIMATIONS ===== */
     gsap.registerPlugin(ScrollTrigger);
@@ -1024,7 +995,6 @@
         } else {
             termPrint('command not found: ' + cmd + '. Type "help" for available commands.');
         }
-        playClick();
     }
 
     // Open terminal with backtick
