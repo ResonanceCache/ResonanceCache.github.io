@@ -3,207 +3,186 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daniel Williamson | Infrastructure Architect</title>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;700&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet">
+    <title>Daniel Williamson | Infrastructure & Security Architect</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #05070a;
-            --card-bg: rgba(17, 20, 26, 0.8);
+            --bg: #080a0c;
             --accent: #00f2ff;
-            --accent-dim: rgba(0, 242, 255, 0.15);
-            --text-main: #e6edf3;
-            --text-dim: #8b949e;
+            --accent-dim: rgba(0, 242, 255, 0.1);
+            --text: #f0f4f8;
+            --text-dim: #94a3b8;
+            --sans: 'Plus Jakarta Sans', sans-serif;
             --mono: 'JetBrains Mono', monospace;
-            --sans: 'Space Grotesk', sans-serif;
+            --section-gap: 15rem;
         }
 
         * { box-sizing: border-box; }
-
         body {
             background-color: var(--bg);
-            color: var(--text-main);
+            color: var(--text);
             font-family: var(--sans);
             margin: 0;
-            line-height: 1.6;
             overflow-x: hidden;
             scroll-behavior: smooth;
         }
 
-        /* Scanline Overlay */
-        body::before {
-            content: "";
+        /* Interactive Background */
+        #canvas-bg {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%), 
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
-            background-size: 100% 3px, 3px 100%;
-            pointer-events: none;
-            z-index: 1000;
+            top: 0; left: 0;
+            z-index: -1;
+            opacity: 0.3;
         }
 
-        /* Hero Section with Interactive Orbit */
+        /* Navigation Orbit */
+        .nav-container {
+            position: fixed;
+            top: 50%;
+            right: 5vw;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-dot {
+            width: 12px;
+            height: 12px;
+            border: 1px solid var(--accent);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-dot:hover, .nav-dot.active {
+            background: var(--accent);
+            box-shadow: 0 0 15px var(--accent);
+            transform: scale(1.5);
+        }
+
+        .nav-label {
+            position: absolute;
+            right: 25px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-family: var(--mono);
+            font-size: 0.7rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.1rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .nav-dot:hover .nav-label { opacity: 1; }
+
+        /* Hero */
         .hero {
             height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            align-items: center;
-            position: relative;
-            padding: 2rem;
-            text-align: center;
-            overflow: hidden;
+            padding: 0 10vw;
         }
 
-        .orbital-container {
-            position: absolute;
-            width: 900px;
-            height: 900px;
-            pointer-events: none;
-        }
-
-        .orbit {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            border: 1px solid var(--accent-dim);
-            border-radius: 50%;
-            pointer-events: none;
-        }
-
-        .orbit-1 { width: 350px; height: 350px; animation: rotate 40s linear infinite; }
-        .orbit-2 { width: 600px; height: 600px; animation: rotate 60s linear infinite reverse; }
-        .orbit-3 { width: 850px; height: 850px; animation: rotate 90s linear infinite; }
-
-        .orbit:hover {
-            animation-play-state: paused;
-            border-color: var(--accent);
-            border-width: 2px;
-        }
-
-        @keyframes rotate {
-            from { transform: translate(-50%, -50%) rotate(0deg); }
-            to { transform: translate(-50%, -50%) rotate(360deg); }
-        }
-
-        .node {
-            position: absolute;
-            width: 40px;
-            height: 40px;
-            background: var(--bg);
-            border: 2px solid var(--accent);
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            pointer-events: all;
-            box-shadow: 0 0 15px var(--accent-dim);
-            transition: all 0.3s ease;
-            text-decoration: none;
-        }
-
-        .node:hover {
-            transform: scale(1.2);
-            box-shadow: 0 0 25px var(--accent);
-            background: var(--accent);
-        }
-
-        .node svg {
-            width: 20px;
-            height: 20px;
-            fill: var(--accent);
-            transition: fill 0.3s ease;
-        }
-
-        .node:hover svg { fill: var(--bg); }
-
-        /* Node Placements */
-        .node-space { top: -20px; left: 50%; transform: translateX(-50%); }
-        .node-fintech { bottom: -20px; left: 50%; transform: translateX(-50%); }
-        .node-origins { left: -20px; top: 50%; transform: translateY(-50%); }
-
-        .node-label {
-            position: absolute;
-            bottom: -25px;
-            white-space: nowrap;
-            font-family: var(--mono);
-            font-size: 0.6rem;
-            color: var(--accent);
-            text-transform: uppercase;
-            letter-spacing: 0.1rem;
-        }
-
-        .hero-content {
-            z-index: 10;
-        }
-
-        .hero-title {
-            font-size: clamp(3rem, 10vw, 6rem);
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: -0.02em;
+        .hero h1 {
+            font-size: clamp(3rem, 10vw, 8rem);
+            font-weight: 800;
             margin: 0;
             line-height: 0.9;
+            letter-spacing: -0.04em;
         }
 
-        .hero-subtitle {
+        .hero p {
             font-family: var(--mono);
             color: var(--accent);
             font-size: 1rem;
-            margin-top: 1.5rem;
+            margin-top: 2rem;
             text-transform: uppercase;
-            letter-spacing: 0.4em;
+            letter-spacing: 0.4rem;
         }
 
-        /* Content Sections */
-        .content {
-            max-width: 1100px;
+        /* Sections */
+        .content-container {
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 0 2rem 10rem;
+            padding: 0 10vw;
         }
 
         section {
-            padding-top: 15vh;
+            min-height: 80vh;
+            padding: 10vh 0;
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 4rem;
-            align-items: start;
+            gap: 5rem;
+            align-items: center;
         }
 
-        @media (max-width: 900px) {
+        @media (max-width: 1100px) {
             section { grid-template-columns: 1fr; }
+            .visual-box { order: -1; height: 300px !important; }
         }
 
-        .section-info { position: sticky; top: 10vh; }
+        .info-box {
+            max-width: 600px;
+        }
 
-        .section-tag {
+        .tag {
             font-family: var(--mono);
             color: var(--accent);
             font-size: 0.8rem;
+            text-transform: uppercase;
             margin-bottom: 1rem;
             display: block;
         }
 
         h2 {
-            font-size: 3rem;
-            margin-bottom: 1.5rem;
-            text-transform: uppercase;
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin: 0 0 2rem 0;
             letter-spacing: -0.03em;
         }
 
-        .section-description {
-            color: var(--text-dim);
+        .description {
             font-size: 1.1rem;
+            color: var(--text-dim);
+            line-height: 1.8;
             margin-bottom: 2rem;
         }
 
-        /* Animated Illustration Containers */
-        .illustration {
+        .details-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .details-list li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+            color: var(--text);
+        }
+
+        .details-list li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+        }
+
+        /* Intense Visual Boxes */
+        .visual-box {
             width: 100%;
-            height: 400px;
-            background: var(--card-bg);
-            border: 1px solid var(--accent-dim);
-            border-radius: 8px;
+            height: 500px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -211,232 +190,253 @@
             overflow: hidden;
         }
 
-        /* SVG Animations */
-        .svg-anim { width: 300px; height: 300px; }
+        /* Individual Animations */
+        .anim-svg { width: 80%; height: 80%; }
 
-        .orbiting-sat { animation: float 6s ease-in-out infinite; }
-        @keyframes float {
-            0%, 100% { transform: translateY(0) rotate(0); }
-            50% { transform: translateY(-20px) rotate(5deg); }
+        /* Project Kuiper: Orbital Mesh */
+        .kuiper-node { fill: var(--accent); }
+        .kuiper-pulse { 
+            stroke: var(--accent); 
+            stroke-width: 0.5;
+            animation: pulse 3s infinite;
+        }
+        @keyframes pulse {
+            0% { r: 50; opacity: 1; }
+            100% { r: 150; opacity: 0; }
         }
 
-        .rail-line {
-            stroke-dasharray: 1000;
-            stroke-dashoffset: 1000;
-            animation: draw 3s forwards infinite;
+        /* Identity: Graph */
+        .id-line { stroke: var(--accent); opacity: 0.2; }
+        .id-node { fill: #fff; }
+
+        /* Payments: Flow */
+        .pay-flow {
+            stroke-dasharray: 20;
+            animation: flow 2s linear infinite;
         }
-        @keyframes draw { to { stroke-dashoffset: 0; } }
+        @keyframes flow { to { stroke-dashoffset: -100; } }
 
-        .car-move { animation: drive 2s linear infinite; }
-        @keyframes drive {
-            0% { transform: translateX(-100px); }
-            100% { transform: translateX(100px); }
-        }
-
-        /* Experience Cards */
-        .experience-stack {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-
-        .card {
-            background: var(--card-bg);
-            border: 1px solid #21262d;
-            padding: 2rem;
-            border-radius: 4px;
-            transition: all 0.3s ease;
-        }
-
-        .card:hover { border-color: var(--accent); transform: translateX(10px); }
-
-        .card-company {
-            font-family: var(--mono);
-            font-size: 0.75rem;
-            color: var(--accent);
-            margin-bottom: 0.5rem;
-            display: block;
-        }
-
-        .card-title { font-size: 1.2rem; font-weight: 600; margin-bottom: 1rem; }
-
+        /* Footer */
         footer {
+            padding: 10rem 10vw 5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
             text-align: center;
-            padding: 5rem 2rem;
             font-family: var(--mono);
             font-size: 0.8rem;
             color: var(--text-dim);
-            border-top: 1px solid var(--accent-dim);
-        }
-
-        .status-dot {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            background: #23d160;
-            border-radius: 50%;
-            margin-right: 8px;
-            box-shadow: 0 0 10px #23d160;
         }
 
     </style>
 </head>
 <body>
-    <div class="hero">
-        <div class="orbital-container">
-            <div class="orbit orbit-1">
-                <a href="#space" class="node node-space" title="Space Infrastructure">
-                    <svg viewBox="0 0 24 24"><path d="M21,16.5C21,16.88 20.79,17.21 20.47,17.38L12.57,21.82C12.41,21.94 12.21,22 12,22C11.79,22 11.59,21.94 11.43,21.82L3.53,17.38C3.21,17.21 3,16.88 3,16.5V7.5C3,7.12 3.21,6.79 3.53,6.62L11.43,2.18C11.59,2.06 11.79,2 12,2C12.21,2 12.41,2.06 12.57,2.18L20.47,6.62C20.79,6.79 21,7.12 21,7.5V16.5Z"/></svg>
-                    <span class="node-label">Space</span>
-                </a>
-            </div>
-            <div class="orbit orbit-2">
-                <a href="#fintech" class="node node-fintech" title="Payment Rails">
-                    <svg viewBox="0 0 24 24"><path d="M12,2L4.5,20.29L5.21,21L12,18L18.79,21L19.5,20.29L12,2Z"/></svg>
-                    <span class="node-label">Payments</span>
-                </a>
-            </div>
-            <div class="orbit orbit-3">
-                <a href="#origins" class="node node-origins" title="Autonomy">
-                    <svg viewBox="0 0 24 24"><path d="M21,11C21,16.5 16.5,21 11,21C5.5,21 1,16.5 1,11C1,5.5 5.5,1 11,1C16.5,1 21,5.5 21,11M19,11C19,6.58 15.42,3 11,3C6.58,3 3,6.58 3,11C3,15.42 6.58,19 11,19C15.42,19 19,15.42 19,11Z"/></svg>
-                    <span class="node-label">Origins</span>
-                </a>
-            </div>
-        </div>
 
-        <div class="hero-content">
-            <span class="hero-subtitle">Infrastructure Architect</span>
-            <h1 class="hero-title">Daniel<br>Williamson</h1>
-            <p style="margin-top: 2rem; font-family: var(--mono); color: var(--text-dim);">[ SECURE_LINK: ACTIVE ]</p>
-        </div>
+    <canvas id="canvas-bg"></canvas>
+
+    <div class="nav-container">
+        <a href="#hero" class="nav-dot active"><span class="nav-label">Home</span></a>
+        <a href="#kuiper" class="nav-dot"><span class="nav-label">Project Kuiper</span></a>
+        <a href="#identity" class="nav-dot"><span class="nav-label">Amazon Identity</span></a>
+        <a href="#payments" class="nav-dot"><span class="nav-label">Payment Exchange</span></a>
+        <a href="#people" class="nav-dot"><span class="nav-label">People Tech</span></a>
+        <a href="#cyber" class="nav-dot"><span class="nav-label">Cyber Risk</span></a>
+        <a href="#narac" class="nav-dot"><span class="nav-label">NARAC</span></a>
+        <a href="#autonomy" class="nav-dot"><span class="nav-label">Autonomy</span></a>
     </div>
 
-    <main class="content">
-        
-        <!-- SECTION 1: SPACE -->
-        <section id="space">
-            <div class="section-info">
-                <span class="section-tag">01 // PROJECT KUIPER</span>
-                <h2>Orbital Infrastructure</h2>
-                <p class="section-description">Architecting the identity and compliance layers for Amazon's LEO satellite constellation. Owning IDP, PKI, and ABAC systems for highly regulated build environments.</p>
-                <div class="illustration">
-                    <!-- SATELLITE SVG -->
-                    <svg class="svg-anim orbiting-sat" viewBox="0 0 200 200">
-                        <circle cx="100" cy="100" r="40" fill="none" stroke="var(--accent)" stroke-width="1" stroke-dasharray="4 4" />
-                        <rect x="70" y="90" width="60" height="20" fill="var(--card-bg)" stroke="var(--accent)" stroke-width="2" />
-                        <rect x="40" y="95" width="30" height="10" fill="var(--accent-dim)" stroke="var(--accent)" />
-                        <rect x="130" y="95" width="30" height="10" fill="var(--accent-dim)" stroke="var(--accent)" />
-                        <circle cx="100" cy="80" r="5" fill="var(--accent)" />
-                    </svg>
-                </div>
+    <div class="hero" id="hero">
+        <p>Senior Infrastructure & Security Architect</p>
+        <h1>DANIEL<br>WILLIAMSON</h1>
+    </div>
+
+    <div class="content-container">
+
+        <!-- 1. PROJECT KUIPER -->
+        <section id="kuiper">
+            <div class="info-box">
+                <span class="tag">Amazon LEO (Current)</span>
+                <h2>Satellite Infrastructure</h2>
+                <p class="description">Leading the architectural design for the build-system identity stack for Amazon's LEO satellite constellation.</p>
+                <ul class="details-list">
+                    <li>Developed an automated global export control license management system for ITAR/EAR compliance.</li>
+                    <li>Owning the CUI-compliant Identity Provider (IDP) and Public Key Infrastructure (PKI).</li>
+                    <li>Designed Attribute-Based Access Control (ABAC) systems for granular hardware build permissions.</li>
+                    <li>Implementing robust Device Identity and Posture assessment systems.</li>
+                </ul>
             </div>
-            <div class="experience-stack">
-                <div class="card">
-                    <span class="card-company">AMAZON LEO</span>
-                    <div class="card-title">IAM & Compliance Architect</div>
-                    <ul>
-                        <li>Automated export control license management.</li>
-                        <li>ITAR/EAR compliant ABAC & IDP ownership.</li>
-                        <li>Device Identity & Posture Systems.</li>
-                    </ul>
-                </div>
-                <div class="card">
-                    <span class="card-company">AMAZON IDENTITY</span>
-                    <div class="card-title">Identity Validation (IDV)</div>
-                    <ul>
-                        <li>Built high-trust profile systems for global employee lifecycle.</li>
-                    </ul>
-                </div>
+            <div class="visual-box">
+                <svg class="anim-svg" viewBox="0 0 400 400">
+                    <circle class="kuiper-pulse" cx="200" cy="200" r="100" fill="none" />
+                    <circle cx="200" cy="200" r="40" fill="none" stroke="var(--accent)" stroke-width="1" />
+                    <g>
+                        <animateTransform attributeName="transform" type="rotate" from="0 200 200" to="360 200 200" dur="20s" repeatCount="indefinite" />
+                        <circle cx="300" cy="200" r="6" fill="var(--accent)" />
+                        <line x1="200" y1="200" x2="300" y2="200" stroke="var(--accent)" stroke-width="0.5" stroke-dasharray="4" />
+                    </g>
+                </svg>
             </div>
         </section>
 
-        <!-- SECTION 2: PAYMENTS -->
-        <section id="fintech">
-            <div class="section-info">
-                <span class="section-tag">02 // FINANCIAL RAILS</span>
-                <h2>Global Movement</h2>
-                <p class="section-description">Engineering mission-critical rails for Real-Time Payments. Building the "Bad Bank" intelligence layer to secure the flow of capital across SWIFT and Fed networks.</p>
-                <div class="illustration">
-                    <!-- PAYMENT RAIL SVG -->
-                    <svg class="svg-anim" viewBox="0 0 200 200">
-                        <path class="rail-line" d="M20,100 Q100,20 180,100 T180,100" fill="none" stroke="var(--accent)" stroke-width="2" />
-                        <circle cx="100" cy="60" r="10" fill="var(--bg)" stroke="var(--accent)" stroke-width="2">
-                            <animate attributeName="r" values="8;12;8" dur="2s" infinite />
-                        </circle>
-                        <rect x="85" y="120" width="30" height="40" fill="none" stroke="var(--accent)" stroke-width="1" rx="2" />
-                        <path d="M90,140 L110,140 M100,130 L100,150" stroke="var(--accent)" stroke-width="1" />
-                    </svg>
-                </div>
+        <!-- 2. AMAZON IDENTITY -->
+        <section id="identity">
+            <div class="visual-box">
+                <svg class="anim-svg" viewBox="0 0 400 400">
+                    <g opacity="0.5">
+                        <line x1="100" y1="100" x2="300" y2="300" stroke="var(--accent)" stroke-width="0.5" />
+                        <line x1="300" y1="100" x2="100" y2="300" stroke="var(--accent)" stroke-width="0.5" />
+                        <circle cx="200" cy="200" r="120" fill="none" stroke="var(--accent)" stroke-width="0.5" stroke-dasharray="5 5" />
+                    </g>
+                    <circle cx="200" cy="200" r="15" fill="var(--accent)">
+                        <animate attributeName="r" values="12;18;12" dur="3s" repeatCount="indefinite" />
+                    </circle>
+                </svg>
             </div>
-            <div class="experience-stack">
-                <div class="card">
-                    <span class="card-company">CAPITAL ONE (EXCHANGE)</span>
-                    <div class="card-title">RTP & FedNow Infrastructure</div>
-                    <ul>
-                        <li>Real-time movement for ACH, Check, and Debit.</li>
-                        <li>"Bad Bank" API: Real-time risk mitigation.</li>
-                    </ul>
-                </div>
-                <div class="card">
-                    <span class="card-company">AMAZON PEOPLE TECH</span>
-                    <div class="card-title">Supply Chain HR Automation</div>
-                    <ul>
-                        <li>Automated ad-spend and headcount modeling.</li>
-                    </ul>
-                </div>
+            <div class="info-box">
+                <span class="tag">Amazon World-Wide Identity</span>
+                <h2>Identity Validation</h2>
+                <p class="description">Engineered features for Amazon's global Identity Verification and Validation (IDV) platform.</p>
+                <ul class="details-list">
+                    <li>Developed high-trust profile creation systems for incoming employee applications.</li>
+                    <li>Implemented multi-layer validation protocols to ensure the integrity of the global employee directory.</li>
+                    <li>Focused on scalability and security for one of the world's largest workforce identity systems.</li>
+                </ul>
             </div>
         </section>
 
-        <!-- SECTION 3: ORIGINS -->
-        <section id="origins">
-            <div class="section-info">
-                <span class="section-tag">03 // AUTONOMY</span>
-                <h2>Kinetic Logic</h2>
-                <p class="section-description">From high-speed IndyCars to nuclear atmospheric modeling. Foundations in machine intelligence, sonar fusion, and emergency response modeling.</p>
-                <div class="illustration">
-                    <!-- CAR/SUB SVG -->
-                    <svg class="svg-anim" viewBox="0 0 200 200">
-                        <path class="car-move" d="M20,150 L60,150 L70,140 L130,140 L140,150 L180,150" fill="none" stroke="var(--accent)" stroke-width="2" />
-                        <circle cx="100" cy="100" r="40" fill="none" stroke="var(--accent-dim)" stroke-width="1" />
-                        <path d="M100,60 L100,140 M60,100 L140,100" stroke="var(--accent)" stroke-width="0.5" stroke-dasharray="2 2" />
-                    </svg>
-                </div>
+        <!-- 3. CAPITAL ONE PAYMENTS -->
+        <section id="payments">
+            <div class="info-box">
+                <span class="tag">Capital One - The Payment Exchange</span>
+                <h2>Real-Time Rails</h2>
+                <p class="description">Architected critical components for the movement of capital across real-time and traditional payment networks.</p>
+                <ul class="details-list">
+                    <li>Engineered integration for RTP (Real-Time Payments) and FedNow.</li>
+                    <li>Managed mission-critical systems for ACH, Check, and Debit payment processing.</li>
+                    <li>Built the "Bad Bank" API: Integrated SWIFT and Fed intelligence to mitigate fraud and sanction risks in real-time.</li>
+                </ul>
             </div>
-            <div class="experience-stack">
-                <div class="card">
-                    <span class="card-company">MACHINE INTELLIGENCE LAB</span>
-                    <div class="card-title">Autonomous IndyCar & Subs</div>
-                    <ul>
-                        <li>Real-time sensor fusion and high-speed navigation.</li>
-                    </ul>
-                </div>
-                <div class="card">
-                    <span class="card-company">NARAC / CYBER RISK</span>
-                    <div class="card-title">Nuclear Modeling & AWS Security</div>
-                    <ul>
-                        <li>First-response tools for atmospheric hazards.</li>
-                    </ul>
-                </div>
+            <div class="visual-box">
+                <svg class="anim-svg" viewBox="0 0 400 400">
+                    <path class="pay-flow" d="M50,200 L350,200" stroke="var(--accent)" stroke-width="2" fill="none" />
+                    <rect x="175" y="150" width="50" height="100" fill="var(--bg)" stroke="var(--accent)" rx="5" />
+                    <path d="M185,200 L215,200 M200,185 L200,215" stroke="var(--accent)" stroke-width="1" />
+                </svg>
             </div>
         </section>
-    </main>
+
+        <!-- 4. AMAZON PEOPLE TECH -->
+        <section id="people">
+            <div class="visual-box">
+                <svg class="anim-svg" viewBox="0 0 400 400">
+                    <rect x="50" y="250" width="40" height="100" fill="var(--accent-dim)" />
+                    <rect x="110" y="200" width="40" height="150" fill="var(--accent-dim)" />
+                    <rect x="170" y="150" width="40" height="200" fill="var(--accent-dim)" />
+                    <rect x="230" y="220" width="40" height="130" fill="var(--accent-dim)" />
+                    <rect x="290" y="100" width="40" height="250" fill="var(--accent)" />
+                </svg>
+            </div>
+            <div class="info-box">
+                <span class="tag">Amazon People Tech</span>
+                <h2>HR Automation</h2>
+                <p class="description">Optimized logistics and marketing for Amazon's global fulfillment workforce.</p>
+                <ul class="details-list">
+                    <li>Automated headcount modeling for fulfillment centers based on regional demand and site performance.</li>
+                    <li>Architected an automated marketing engine to optimize spend across Google and Facebook ads for hiring.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 5. CAPITAL ONE CYBER -->
+        <section id="cyber">
+            <div class="info-box">
+                <span class="tag">Capital One - Tech Risk</span>
+                <h2>Cyber Visibility</h2>
+                <p class="description">Developed enterprise-grade monitoring and tech risk visualization tools.</p>
+                <ul class="details-list">
+                    <li>Built real-time cyber security data monitoring for AWS service logs.</li>
+                    <li>Designed and implemented enterprise dashboards for Tech Risk visualization and compliance auditing.</li>
+                </ul>
+            </div>
+            <div class="visual-box">
+                <svg class="anim-svg" viewBox="0 0 400 400">
+                    <circle cx="200" cy="200" r="100" fill="none" stroke="var(--accent)" stroke-width="0.5" />
+                    <line x1="200" y1="200" x2="200" y2="100" stroke="var(--accent)" stroke-width="2">
+                        <animateTransform attributeName="transform" type="rotate" from="0 200 200" to="360 200 200" dur="5s" repeatCount="indefinite" />
+                    </line>
+                </svg>
+            </div>
+        </section>
+
+        <!-- 6. NARAC -->
+        <section id="narac">
+            <div class="visual-box">
+                <svg class="anim-svg" viewBox="0 0 400 400">
+                    <path d="M50,300 Q200,100 350,300" fill="none" stroke="var(--accent)" stroke-width="2" />
+                    <circle cx="100" cy="250" r="20" fill="var(--accent-dim)" />
+                    <circle cx="200" cy="180" r="30" fill="var(--accent-dim)" />
+                    <circle cx="300" cy="250" r="25" fill="var(--accent-dim)" />
+                </svg>
+            </div>
+            <div class="info-box">
+                <span class="tag">NARAC (Internship)</span>
+                <h2>Nuclear Modeling</h2>
+                <p class="description">Supported national security through atmospheric hazard modeling.</p>
+                <ul class="details-list">
+                    <li>Developed nuclear defense modeling tools for the National Atmospheric Release Advisory Center.</li>
+                    <li>Built first-response web applications for real-time atmospheric hazard tracking.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 7. AUTONOMY -->
+        <section id="autonomy">
+            <div class="info-box">
+                <span class="tag">Machine Intelligence Lab</span>
+                <h2>Kinetic Autonomy</h2>
+                <p class="description">Foundational research in high-speed autonomous systems.</p>
+                <ul class="details-list">
+                    <li>Autonomous IndyCar: Developed high-speed navigation and pathing software.</li>
+                    <li>Autonomous Submarines: Engineered sonar fusion and underwater obstacle avoidance.</li>
+                </ul>
+            </div>
+            <div class="visual-box">
+                <svg class="anim-svg" viewBox="0 0 400 400">
+                    <path d="M20,350 L380,350" stroke="#333" stroke-width="2" />
+                    <rect x="50" y="320" width="60" height="20" fill="var(--accent)" />
+                    <circle cx="65" cy="345" r="8" fill="#fff" />
+                    <circle cx="95" cy="345" r="8" fill="#fff" />
+                    <path d="M150,300 Q250,150 350,300" fill="none" stroke="var(--accent)" stroke-width="1" stroke-dasharray="5" />
+                </svg>
+            </div>
+        </section>
+
+    </div>
 
     <footer>
-        <p><span class="status-dot"></span> ORBITAL LINK STABLE // 2026</p>
-        <p style="margin-top: 1rem;">DANIEL WILLIAMSON &copy; MIAMI, FL</p>
+        <p>Built by Daniel Williamson // 2026 // Secure Infrastructure Architect</p>
     </footer>
 
     <script>
-        // Smooth scroll node interaction
-        document.querySelectorAll('.node').forEach(node => {
-            node.addEventListener('click', function(e) {
+        // Smooth scroll for nav
+        document.querySelectorAll('.nav-dot').forEach(dot => {
+            dot.addEventListener('click', function(e) {
                 e.preventDefault();
-                const targetId = this.getAttribute('href');
-                document.querySelector(targetId).scrollIntoView({
-                    behavior: 'smooth'
-                });
+                const target = document.querySelector(this.getAttribute('href'));
+                target.scrollIntoView({ behavior: 'smooth' });
             });
         });
+
+        // Intersection Observer for active nav state
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    document.querySelectorAll('.nav-dot').forEach(dot => dot.classList.remove('active'));
+                    const activeDot = document.querySelector(`.nav-dot[href="#${entry.target.id}"]`);
+                    if (activeDot) activeDot.classList.add('active');
+                }
+            });
+        }, { threshold: 0.5 });
+
+        document.querySelectorAll('section, .hero').forEach(s => observer.observe(s));
     </script>
 </body>
 </html>
