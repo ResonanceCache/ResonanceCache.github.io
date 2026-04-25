@@ -440,6 +440,25 @@
                     </circle>
                 </svg>
             </div>
+
+            <script>
+                // Randomized Weather Modeling for Fallout
+                const falloutParticles = document.querySelectorAll('#narac .particle');
+                function updateWeather() {
+                    const windX = (Math.random() * 200) + 50; // Wind velocity 50-250
+                    const windY = (Math.random() * -100) - 100; // Drift -100 to -200
+                    const chaos = Math.random() * 5;
+
+                    falloutParticles.forEach((p, i) => {
+                        const animX = p.querySelector('animate[attributeName="cx"]');
+                        const animY = p.querySelector('animate[attributeName="cy"]');
+                        if (animX) animX.setAttribute('values', `200; ${windX + (i * chaos)}`);
+                        if (animY) animY.setAttribute('values', `300; ${windY - (i * chaos)}`);
+                    });
+                }
+                setInterval(updateWeather, 4000);
+            </script>
+
             <div class="info-box">
                 <span class="tag">NARAC (Internship)</span>
                 <h2>Nuclear Modeling</h2>
