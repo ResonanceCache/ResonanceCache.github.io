@@ -171,7 +171,15 @@
             font-size: 0.8rem;
             text-transform: uppercase;
             margin-bottom: 1rem;
-            display: block;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-logo {
+            width: 24px;
+            height: 24px;
+            fill: var(--accent);
         }
 
         h2 {
@@ -341,7 +349,10 @@
         <!-- 1. PROJECT KUIPER -->
         <section id="kuiper">
             <div class="info-box">
-                <span class="tag">Amazon LEO (Current)</span>
+                <span class="tag">
+                    <svg class="brand-logo" viewBox="0 0 24 24"><path d="M15.93,17.13C14.72,18.86 11.74,19.04 8.46,18.77C5.17,18.5 2.5,17.17 1.5,15.5C1.29,15.15 1.41,14.73 1.76,14.5C2.11,14.28 2.53,14.4 2.76,14.75C3.5,15.91 5.42,17 8.54,17.27C11.66,17.54 13.9,17.39 14.85,16.27L13.03,14.87C12.76,14.66 12.76,14.24 13.04,14.05C13.32,13.86 13.7,13.92 13.92,14.2L16.27,17.06C16.43,17.26 16.42,17.55 16.24,17.74C16.14,17.84 16,17.88 15.86,17.88L15.93,17.13Z"/></svg>
+                    Amazon LEO (Current)
+                </span>
                 <h2>Satellite Infrastructure</h2>
                 <p class="description">Leading the architectural design for the build-system identity stack for Amazon's LEO satellite constellation.</p>
                 <ul class="details-list">
@@ -376,7 +387,10 @@
                 </svg>
             </div>
             <div class="info-box">
-                <span class="tag">Amazon People Tech</span>
+                <span class="tag">
+                    <svg class="brand-logo" viewBox="0 0 24 24"><path d="M15.93,17.13C14.72,18.86 11.74,19.04 8.46,18.77C5.17,18.5 2.5,17.17 1.5,15.5C1.29,15.15 1.41,14.73 1.76,14.5C2.11,14.28 2.53,14.4 2.76,14.75C3.5,15.91 5.42,17 8.54,17.27C11.66,17.54 13.9,17.39 14.85,16.27L13.03,14.87C12.76,14.66 12.76,14.24 13.04,14.05C13.32,13.86 13.7,13.92 13.92,14.2L16.27,17.06C16.43,17.26 16.42,17.55 16.24,17.74C16.14,17.84 16,17.88 15.86,17.88L15.93,17.13Z"/></svg>
+                    Amazon People Tech
+                </span>
                 <h2>HR Automation</h2>
                 <p class="description">Optimized logistics and marketing for Amazon's global fulfillment workforce.</p>
                 <ul class="details-list">
@@ -386,10 +400,13 @@
             </div>
         </section>
 
-        <!-- 4. CAPITAL ONE PAYMENTS -->
+        <!-- 3. CAPITAL ONE PAYMENTS -->
         <section id="payments">
             <div class="info-box">
-                <span class="tag">Capital One - The Payment Exchange</span>
+                <span class="tag">
+                    <svg class="brand-logo" viewBox="0 0 24 24"><path d="M2,15C2,15 5,12 12,12C19,12 22,15 22,15L22,13C22,13 19,10 12,10C5,10 2,13 2,13L2,15Z"/></svg>
+                    Capital One - The Payment Exchange
+                </span>
                 <h2>Real-Time Rails</h2>
                 <p class="description">Architected critical components for the movement of capital across real-time and traditional payment networks.</p>
                 <ul class="details-list">
@@ -417,10 +434,13 @@
             </div>
         </section>
 
-        <!-- 5. CAPITAL ONE CYBER -->
+        <!-- 4. CAPITAL ONE CYBER -->
         <section id="cyber">
             <div class="info-box">
-                <span class="tag">Capital One - Tech Risk</span>
+                <span class="tag">
+                    <svg class="brand-logo" viewBox="0 0 24 24"><path d="M2,15C2,15 5,12 12,12C19,12 22,15 22,15L22,13C22,13 19,10 12,10C5,10 2,13 2,13L2,15Z"/></svg>
+                    Capital One - Tech Risk
+                </span>
                 <h2>Cyber Visibility</h2>
                 <p class="description">Developed enterprise-grade monitoring and tech risk visualization tools.</p>
                 <ul class="details-list">
@@ -438,7 +458,7 @@
             </div>
         </section>
 
-        <!-- 6. NARAC -->
+        <!-- 5. NARAC -->
         <section id="narac">
             <div class="visual-box">
                 <svg class="anim-svg" viewBox="0 0 400 400">
@@ -486,7 +506,10 @@
             </script>
 
             <div class="info-box">
-                <span class="tag">NARAC (Internship)</span>
+                <span class="tag">
+                    <svg class="brand-logo" viewBox="0 0 24 24"><path d="M12,2L4.5,20.29L5.21,21L12,18L18.79,21L19.5,20.29L12,2Z"/></svg>
+                    NARAC (Internship)
+                </span>
                 <h2>Nuclear Modeling</h2>
                 <p class="description">Supported national security through atmospheric hazard modeling.</p>
                 <ul class="details-list">
@@ -496,10 +519,13 @@
             </div>
         </section>
 
-        <!-- 7. AUTONOMY -->
+        <!-- 6. AUTONOMY -->
         <section id="autonomy">
             <div class="info-box">
-                <span class="tag">Machine Intelligence Lab</span>
+                <span class="tag">
+                    <svg class="brand-logo" viewBox="0 0 24 24"><path d="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,5.93C16.04,5.55 15.47,5.23 14.86,5.03L14.46,2.54C14.42,2.3 14.22,2.13 13.97,2.13H9.97C9.72,2.13 9.5,2.3 9.48,2.54L9.08,5.03C8.47,5.23 7.9,5.55 7.38,5.93L4.89,5.05C4.67,4.96 4.4,5.05 4.28,5.27L2.28,8.73C2.16,8.95 2.21,9.22 2.4,9.37L4.51,11C4.47,11.34 4.45,11.67 4.45,12C4.45,12.33 4.47,12.65 4.51,12.97L2.4,14.63C2.21,14.78 2.16,15.05 2.28,15.27L4.28,18.73C4.4,18.95 4.67,19.04 4.89,18.95L7.38,18.07C7.9,18.45 8.47,18.77 9.08,18.97L9.48,21.46C9.5,21.7 9.72,21.87 9.97,21.87H13.97C14.22,21.87 14.42,21.7 14.46,21.46L14.86,18.97C15.47,18.77 16.04,18.45 16.56,18.07L19.05,18.95C19.27,19.04 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z"/></svg>
+                    Machine Intelligence Lab
+                </span>
                 <h2>Kinetic Autonomy</h2>
                 <p class="description">Foundational research in high-speed autonomous systems.</p>
                 <ul class="details-list">
