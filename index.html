@@ -74,6 +74,12 @@
         .orbit-2 { width: 600px; height: 600px; animation: rotate 60s linear infinite reverse; }
         .orbit-3 { width: 850px; height: 850px; animation: rotate 90s linear infinite; }
 
+        .orbit:hover {
+            animation-play-state: paused;
+            border-color: var(--accent);
+            border-width: 2px;
+        }
+
         @keyframes rotate {
             from { transform: translate(-50%, -50%) rotate(0deg); }
             to { transform: translate(-50%, -50%) rotate(360deg); }
